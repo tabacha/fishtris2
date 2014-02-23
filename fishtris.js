@@ -33,7 +33,7 @@ var KEY     = { ESC: 27, SPACE: 32, LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40 },
     ucanvas = get('upcoming'),
     uctx    = ucanvas.getContext('2d'),
     speed   = { start: 0.6, decrement: 0.005, min: 0.1 }, // how long before piece drops by 1 row (seconds)
-    nx      = 10, // width of tetris court (in blocks)
+    nx      = 8, // width of tetris court (in blocks)
     ny      = 20, // height of tetris court (in blocks)
     nu      = 5;  // width/height of upcoming preview (in blocks)
 
