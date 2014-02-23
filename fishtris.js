@@ -77,6 +77,7 @@ var s = { id: 's', size: 3, blocks: [0x06C0, 0x8C40, 0x6C00, 0x4620], color: '#5
 var t = { id: 't', size: 3, blocks: [0x0E40, 0x4C40, 0x4E00, 0x4640], color: '#aa0000' };
 var z = { id: 'z', size: 3, blocks: [0x0C60, 0x4C80, 0xC600, 0x2640], color: '#ff5555' };
 
+var dropall = false;
 //------------------------------------------------
 // do the bit manipulation and iterate through each
 // occupied block (x,y) for a given piece
@@ -176,7 +177,7 @@ function keydown(ev) {
           case KEY.LEFT:   actions.push(DIR.LEFT);  handled = true; break;
           case KEY.RIGHT:  actions.push(DIR.RIGHT); handled = true; break;
           case KEY.UP:     actions.push(DIR.UP);    handled = true; break;
-          case KEY.DOWN:   actions.push(DIR.DOWN);  handled = true; break;
+	  case KEY.DOWN:   actions.push(DIR.DOWN); dropall=true; handled = true; break;
           case KEY.ESC:    lose();                  handled = true; break;
         }
       }
@@ -252,6 +253,15 @@ function move(dir) {
         current.x = x;
         current.y = y;
         invalidate();
+	if (dropall) {
+	    while (unoccupied(current.type, x, y, current.dir)) {
+		y = y + 1;
+		current.y = y;
+	    }
+	    y = y - 1;
+	    current.y = y;
+	    dropall = false;
+	}
         return true;
       }
       else {
