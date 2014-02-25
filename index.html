@@ -6,36 +6,45 @@
     body      { font-family: Helvetica, sans-serif; }
     #tetris   { margin: 1em auto; padding: 1em; border: 4px solid black; border-radius: 10px; background-color: #F8F8F8; }
     #stats    { display: inline-block; vertical-align: top; }
-    #canvas   { display: inline-block; vertical-align: top; background: #000000; box-shadow: 10px 10px 10px #999; border: 2px solid #333; }
-    #menu     { display: inline-block; vertical-align: top; position: relative; }
-    #menu p   { margin: 0.5em 0; text-align: center; }
-    #menu p a { text-decoration: none; color: black; }
-    #upcoming { display: block; margin: 0 auto; background-color: #E0E0E0; }
-    #score    { color: red; font-weight: bold; vertical-align: middle; }
-    #rows     { color: blue; font-weight: bold; vertical-align: middle; }
+    .game   { display: inline-block; vertical-align: top; background: #000000; box-shadow: 10px 10px 10px #999; border: 2px solid #333; margin: 15px }
+    .menu     { display: inline-block; vertical-align: top; position: relative; }
+    .menu p   { margin: 0.5em 0; text-align: center; }
+    .menu p a { text-decoration: none; color: black; }
+    .upcoming { display: block; margin: 0 auto; background-color: #E0E0E0; }
+    .score    { color: red; font-weight: bold; vertical-align: middle; }
+    .rows     { color: blue; font-weight: bold; vertical-align: middle; }
     #stats    { position: absolute; bottom: 0em; right: 1em; }
-    @media screen and (min-width:   0px) and (min-height:   0px)  { #tetris { font-size: 0.75em; width: 250px; } #menu { width: 100px; height: 200px; } .upcoming { width:  50px; height:  50px; } .game { width: 80px; height: 200px; } } /* 10px chunks */
-    @media screen and (min-width: 400px) and (min-height: 400px)  { #tetris { font-size: 1.00em; width: 350px; } #menu { width: 150px; height: 300px; } .upcoming { width:  75px; height:  75px; } .game { width: 120px; height: 300px; } } /* 15px chunks */
-    @media screen and (min-width: 500px) and (min-height: 520px)  { #tetris { font-size: 1.25em; width: 450px; } #menu { width: 200px; height: 400px; } .upcoming { width: 100px; height: 100px; } .game { width: 160px; height: 400px; } } /* 20px chunks */
-    @media screen and (min-width: 600px) and (min-height: 620px)  { #tetris { font-size: 1.50em; width: 550px; } #menu { width: 250px; height: 500px; } .upcoming { width: 125px; height: 125px; } .game { width: 200px; height: 500px; } } /* 25px chunks */
-    @media screen and (min-width: 700px) and (min-height: 720px)  { #tetris { font-size: 1.75em; width: 650px; } #menu { width: 300px; height: 600px; } .upcoming { width: 150px; height: 150px; } .game { width: 240px; height: 600px; } } /* 30px chunks */
-    @media screen and (min-width: 800px) and (min-height: 840px)  { #tetris { font-size: 2.00em; width: 750px; } #menu { width: 350px; height: 700px; } .upcoming { width: 175px; height: 175px; } .game { width: 280px; height: 700px; } } /* 35px chunks */
-    @media screen and (min-width: 900px) and (min-height: 960px)  { #tetris { font-size: 2.25em; width: 850px; } #menu { width: 400px; height: 800px; } .upcoming { width: 200px; height: 200px; } .game { width: 320px; height: 800px; } } /* 40px chunks */
+    @media screen and (min-width:   0px) and (min-height:   0px)  { #tetris { font-size: 0.75em; width: 425px; } .menu { width: 90px; height: 200px; } .upcoming { width:  50px; height:  50px; } .game { width: 80px; height: 200px; } } /* 10px chunks */
+    @media screen and (min-width: 630px) and (min-height: 400px)  { #tetris { font-size: 1.00em; width: 620px; } .menu { width: 145px; height: 300px; } .upcoming { width:  75px; height:  75px; } .game { width: 120px; height: 300px; } } /* 15px chunks */
+    @media screen and (min-width: 800px) and (min-height: 520px)  { #tetris { font-size: 1.25em; width: 790px; } .menu { width: 190px; height: 400px; } .upcoming { width: 100px; height: 100px; } .game { width: 160px; height: 400px; } } /* 20px chunks */
+    @media screen and (min-width: 1000px) and (min-height: 620px)  { #tetris { font-size: 1.50em; width: 990px; } .menu { width: 240px; height: 500px; } .upcoming { width: 125px; height: 125px; } .game { width: 200px; height: 500px; } } /* 25px chunks */
+    @media screen and (min-width: 1090px) and (min-height: 720px)  { #tetris { font-size: 1.75em; width: 1080px; } .menu { width: 230px; height: 600px; } .upcoming { width: 150px; height: 150px; } .game { width: 240px; height: 600px; } } /* 30px chunks */
+    @media screen and (min-width: 1120px) and (min-height: 840px)  { #tetris { font-size: 2.00em; width: 1120px; } .menu { width: 230px; height: 700px; } .upcoming { width: 175px; height: 175px; } .game { width: 280px; height: 700px; } } /* 35px chunks */
   </style>
 </head> 
 
 <body> 
   <div id="tetris">
-<center><b>F I S H T R I S</b></center>
-    <div id="menu">
+    <div id="menu" class="menu">
       <p id="start"><a href="javascript:play();">Press Space to Play.</a></p>
       <p><canvas id="upcoming" class="upcoming"></canvas></p>
-      <p>score <span id="score">00000</span></p>
-      <p>rows <span id="rows">0</span></p>
+      <p>score <span id="score" class="score">00000</span></p>
+      <p>rows <span id="rows" class="rows">0</span></p>
+      <p>gnus <span id="gnus" class="rows">0</span></p>
     </div>
     <canvas id="canvas" class="game">
       Sorry, this example cannot be run because your browser does not support the &lt;canvas&gt; element
     </canvas>
+    <canvas id="canvasop" class="game">
+    </canvas>
+    <div id="oponent" class="menu">
+      <center><b>F I S H T R I S</b></center>
+      <p><canvas id="upcomingop" class="upcoming"></canvas></p>
+      <p>score <span id="scoreop" class="score">00000</span></p>
+      <p>rows <span id="rowsop" class="rows">0</span></p>
+      <p>gnus <span id="gnus" class="rows">0</span></p>
+    </div>
+
   </div>
 
   <script src="stats.js"></script>
