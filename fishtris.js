@@ -51,6 +51,7 @@ var dx, dy,        // pixel size of a single tetris block
     score,         // the current score
     vscore,        // the currently displayed score (it catches up to score in small chunks - like a spinning slot machine)
     rows,          // number of completed rows in the current game
+    gnus,          // number of gnus
     step;          // how long before current piece drops by 1 row
 
 //-------------------------------------------------------------------------
@@ -118,7 +119,7 @@ function unoccupied(type, x, y, dir) {
 var pieces = [];
 function randomPiece() {
       if (pieces.length == 0)
-        pieces = [i,i,i,i,j,j,j,j,l,l,l,l,o,o,o,o,s,s,s,s,t,t,t,t,z,z,z,z];
+	 pieces = [i,i,i,i,j,j,j,j,l,l,l,l,o,o,o,o,s,s,s,s,t,t,t,t,z,z,z,z];
       var type = pieces.splice(random(0, pieces.length-1), 1)[0];
       return { type: type, dir: DIR.UP, x: Math.round(random(0, nx - type.size)), y: 0 };
 };
@@ -197,12 +198,16 @@ function play() { hide('start'); reset();          playing = true;  };
 function lose() { show('start'); setVisualScore(); playing = false; };
 
 function setVisualScore(n)      { vscore = n || score; invalidateScore(); };
-function setScore(n)            { score = n; setVisualScore(n);  };
-function addScore(n)            { score = score + n;   };
+function setScore(n)            { score = n; setVisualScore(n); console.log("score",score);  };
+function addScore(n)            { score = score + n; console.log("score",score);  };
 function clearScore()           { setScore(0); };
 function clearRows()            { setRows(0); };
-function setRows(n)             { rows = n; step = Math.max(speed.min, speed.start - (speed.decrement*rows)); invalidateRows(); };
+function setRows(n)             { rows = n; step = Math.max(speed.min, speed.start - (speed.decrement*rows)); invalidateRows();  console.log("Rows",rows); };
 function addRows(n)             { setRows(rows + n); };
+function addGnus(n)             { setGnus(gnus + n);  };
+function setGnus(n)             { gnus = n; console.log("gnus",gnus); invalidateGnus(); }
+function clearGnus()            { setGnus(0); };
+
 function getBlock(x,y)          { return (blocks && blocks[x] ? blocks[x][y] : null); };
 function setBlock(x,y,type)     { blocks[x] = blocks[x] || []; blocks[x][y] = type; invalidate(); };
 function clearBlocks()          { blocks = []; invalidate(); }
@@ -215,6 +220,7 @@ function reset() {
       clearActions();
       clearBlocks();
       clearRows();
+      clearGnus();
       clearScore();
       setCurrentPiece(next);
       setNextPiece();
@@ -243,6 +249,7 @@ function handle(action) {
 };
 
 function move(dir) {
+    console.log("ac",current.type.id,current.x,current.y,current.dir)
       var x = current.x, y = current.y;
       switch(dir) {
         case DIR.RIGHT: x = x + 1; break;
@@ -259,6 +266,7 @@ function move(dir) {
 		current.y = y;
 	    }
 	    y = y - 1;
+	    dt = dt - step;
 	    current.y = y;
 	    dropall = false;
 	}
@@ -280,11 +288,23 @@ function rotate(dir) {
 function drop() {
       if (!move(DIR.DOWN)) {
         addScore(10);
+	console.log("curr",current.type.id,current.x,current.y,current.dir)
         dropPiece();
         removeLines();
         setCurrentPiece(next);
         setNextPiece(randomPiece());
         clearActions();
+	//	console.log("blocks",blocks);
+	var x, y, block;
+        for(y = 0 ; y < ny ; y++) {
+          for (x = 0 ; x < nx ; x++) {
+	      if (block = getBlock(x,y)) {
+		  //		console.log("block",x,y,block.color);
+	      } else {
+		  //		console.log("block",x,y,"000000");
+	      }
+	  }
+	}
         if (occupied(current.type, current.x, current.y, current.dir)) {
           lose();
         }
@@ -307,12 +327,14 @@ function removeLines() {
         }
         if (complete) {
           removeLine(y);
+	  console.log("Remove line",y);
           y = y + 1; // recheck same line
           n++;
         }
       }
       if (n > 0) {
         addRows(n);
+	addGnus(n);
         addScore(100*Math.pow(2,n-1)); // 1: 100, 2: 200, 3: 400, 4: 800
       }
     };
@@ -335,6 +357,7 @@ function invalidate()         { invalid.court  = true; }
 function invalidateNext()     { invalid.next   = true; }
 function invalidateScore()    { invalid.score  = true; }
 function invalidateRows()     { invalid.rows   = true; }
+function invalidateGnus()     { invalid.gnus   = true; }
 
 function draw() {
       ctx.save();
@@ -344,6 +367,7 @@ function draw() {
       drawNext();
       drawScore();
       drawRows();
+      drawGnus();
       ctx.restore();
 };
 
@@ -389,6 +413,13 @@ function drawRows() {
       if (invalid.rows) {
         html('rows', rows);
         invalid.rows = false;
+      }
+};
+
+function drawGnus() {
+      if (invalid.gnus) {
+        html('gnus', gnus);
+        invalid.gnus = false;
       }
 };
 
