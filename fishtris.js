@@ -77,6 +77,7 @@ var o = { id: 'o', size: 2, blocks: [0xCC00, 0xCC00, 0xCC00, 0xCC00], color: '#0
 var s = { id: 's', size: 3, blocks: [0x06C0, 0x8C40, 0x6C00, 0x4620], color: '#55ff55' };
 var t = { id: 't', size: 3, blocks: [0x0E40, 0x4C40, 0x4E00, 0x4640], color: '#aa0000' };
 var z = { id: 'z', size: 3, blocks: [0x0C60, 0x4C80, 0xC600, 0x2640], color: '#ff5555' };
+var f = { id: 'f', size: 4, blocks: [0x5F50, 0x2727, 0x0AFA, 0xE4E4], color: '#ffffff' };
 
 var dropall = false;
 //------------------------------------------------
@@ -119,7 +120,7 @@ function unoccupied(type, x, y, dir) {
 var pieces = [];
 function randomPiece() {
       if (pieces.length == 0)
-	 pieces = [i,i,i,i,j,j,j,j,l,l,l,l,o,o,o,o,s,s,s,s,t,t,t,t,z,z,z,z];
+	  pieces = [i,i,i,i,j,j,j,j,l,l,l,l,o,o,o,o,s,s,s,s,t,t,t,t,z,z,z,z,f,f,f,f];
       var type = pieces.splice(random(0, pieces.length-1), 1)[0];
       return { type: type, dir: DIR.UP, x: Math.round(random(0, nx - type.size)), y: 0 };
 };
