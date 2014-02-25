@@ -3,8 +3,8 @@ Fishtris 2
 
 An HTML5 network based Tetris game.
 
-This Tetris clone is based on the code of javascript-tetris
-[source](https://github.com/jakesgordon/javascript-tetris).
+This Tetris clone is based on the 
+[code of javascript-tetris source](https://github.com/jakesgordon/javascript-tetris).
 
 Long time ago there was a MS-DOS based Tetris clone called Fishtris.
 Two player play tetris. For every row the filled, they got "GNU-Points".
