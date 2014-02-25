@@ -26,14 +26,17 @@ Number of GNU | Name  |  Effect
 
 A tonne is this:
 
+```
  xxxx
+```
 
 And a FISH is this:
 
+```
   x x
  x xx
   x x
-
+```
 
 >> _*SUPPORTED BROWSERS*: Chrome, Firefox, Safari, Opera and IE9+_
 
