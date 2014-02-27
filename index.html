@@ -24,6 +24,7 @@
 </head> 
 
 <body> 
+  <div id="startinfo"> Please wait for a 2nd  player to join</div>
   <div id="tetris">
     <div id="menu" class="menu">
       <p id="start"><a href="javascript:play();">Press Space to Play.</a></p>
@@ -42,13 +43,15 @@
       <p><canvas id="upcomingop" class="upcoming"></canvas></p>
       <p>score <span id="scoreop" class="score">00000</span></p>
       <p>rows <span id="rowsop" class="rows">0</span></p>
-      <p>gnus <span id="gnus" class="rows">0</span></p>
+      <p>gnus <span id="gnusop" class="rows">0</span></p>
     </div>
 
   </div>
 
   <script src="stats.js"></script>
+  <script src="http://localhost:8080/socket.io/socket.io.js"></script>
   <script src="fishtris.js"></script>
+
 
 
 </body> 
