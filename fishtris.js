@@ -2,70 +2,107 @@
 // base helper methods
 //-------------------------------------------------------------------------
 
-function get(id)        { return document.getElementById(id);  };
-function hide(id)       { get(id).style.visibility = 'hidden'; };
-function show(id)       { get(id).style.visibility = null;     };
-function html(id, html) { get(id).innerHTML = html;            };
+function get(id) {
+    return document.getElementById(id);
+};
 
-function timestamp()           { return new Date().getTime();                             };
-function random(min, max)      { return (min + (Math.random() * (max - min)));            };
-function randomChoice(choices) { return choices[Math.round(random(0, choices.length-1))]; };
+function hide(id) {
+    get(id).style.visibility = 'hidden';
+};
+
+function show(id) {
+    get(id).style.visibility = null;
+};
+
+function html(id, html) {
+    get(id).innerHTML = html;
+};
+
+function timestamp() {
+    return new Date().getTime();
+};
+
+function random(min, max) {
+    return (min + (Math.random() * (max - min)));
+};
+
+function randomChoice(choices) {
+    return choices[Math.round(random(0, choices.length - 1))];
+};
 
 if (!window.requestAnimationFrame) { // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-      window.requestAnimationFrame = window.webkitRequestAnimationFrame || 
-                                     window.mozRequestAnimationFrame    || 
-                                     window.oRequestAnimationFrame      || 
-                                     window.msRequestAnimationFrame     || 
-                                     function(callback, element) {
-                                       window.setTimeout(callback, 1000 / 60);
-                                     }
+    window.requestAnimationFrame = window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        function(callback, element) {
+            window.setTimeout(callback, 1000 / 60);
+    }
 }
 
 //-------------------------------------------------------------------------
 // game constants
 //-------------------------------------------------------------------------
 
-var KEY     = { ESC: 27, SPACE: 32, LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40 },
-    DIR     = { UP: 0, RIGHT: 1, DOWN: 2, LEFT: 3, MIN: 0, MAX: 3 },
-    stats   = new Stats(),
-    canvas  = get('canvas'),
-    ctx     = canvas.getContext('2d'),
+var KEY = {
+    ESC: 27,
+    SPACE: 32,
+    LEFT: 37,
+    UP: 38,
+    RIGHT: 39,
+    DOWN: 40
+},
+    DIR = {
+        UP: 0,
+        RIGHT: 1,
+        DOWN: 2,
+        LEFT: 3,
+        MIN: 0,
+        MAX: 3
+    },
+    stats = new Stats(),
+    canvas = get('canvas'),
+    ctx = canvas.getContext('2d'),
     ucanvas = get('upcoming'),
-    uctx    = ucanvas.getContext('2d'),
+    uctx = ucanvas.getContext('2d'),
     opcanvas = get('canvasop'),
-    opctx   = opcanvas.getContext('2d'),
-    speed   = { start: 0.6, decrement: 0.005, min: 0.1 }, // how long before piece drops by 1 row (seconds)
-    nx      = 8, // width of tetris court (in blocks)
-    ny      = 20, // height of tetris court (in blocks)
-    nu      = 5,  // width/height of upcoming preview (in blocks)
-    port    = window.location.port,
-    host    = window.location.host;
-if (port=="")
-   port="80" 
+    opctx = opcanvas.getContext('2d'),
+    speed = {
+        start: 0.6,
+        decrement: 0.005,
+        min: 0.1
+    }, // how long before piece drops by 1 row (seconds)
+    nx = 8, // width of tetris court (in blocks)
+    ny = 20, // height of tetris court (in blocks)
+    nu = 5, // width/height of upcoming preview (in blocks)
+    port = window.location.port,
+    host = window.location.host;
+if (port == "")
+    port = "80"
 
 if (window.location.protocol == "file:") {
-    port="8080"
-    host="localhost"
+    port = "8080"
+    host = "localhost"
 }
-console.log("socket-url="+host+':'+port);
+console.log("socket-url=" + host + ':' + port);
 //-------------------------------------------------------------------------
 // game variables (initialized during reset)
 //-------------------------------------------------------------------------
-var socket = io.connect('http://'+host+':'+port);
+var socket = io.connect('http://' + host + ':' + port);
 
-var dx, dy,        // pixel size of a single tetris block
-    blocks,        // 2 dimensional array (nx*ny) representing tetris court - either empty block or occupied by a 'piece'
+var dx, dy, // pixel size of a single tetris block
+    blocks, // 2 dimensional array (nx*ny) representing tetris court - either empty block or occupied by a 'piece'
     op_blocks,
-    actions,       // queue of user actions (inputs)
-    playing,       // true|false - game is in progress
-    dt,            // time since starting this game
-    current,       // the current piece
-    next,          // the next piece
-    score,         // the current score
-    vscore,        // the currently displayed score (it catches up to score in small chunks - like a spinning slot machine)
-    rows,          // number of completed rows in the current game
-    gnus,          // number of gnus
-    step;          // how long before current piece drops by 1 row
+    actions, // queue of user actions (inputs)
+    playing, // true|false - game is in progress
+    dt, // time since starting this game
+    current, // the current piece
+    next, // the next piece
+    score, // the current score
+    vscore, // the currently displayed score (it catches up to score in small chunks - like a spinning slot machine)
+    rows, // number of completed rows in the current game
+    gnus, // number of gnus
+    step; // how long before current piece drops by 1 row
 
 //-------------------------------------------------------------------------
 // tetris pieces
@@ -83,14 +120,54 @@ var dx, dy,        // pixel size of a single tetris block
 //
 //-------------------------------------------------------------------------
 
-var i = { id: 'i', size: 4, blocks: [0x0F00, 0x2222, 0x00F0, 0x4444], color: '#ffff55' };
-var j = { id: 'j', size: 3, blocks: [0x44C0, 0x8E00, 0x6440, 0x0E20], color: '#0000aa' };
-var l = { id: 'l', size: 3, blocks: [0x4460, 0x0E80, 0xC440, 0x2E00], color: '#00aa00' };
-var o = { id: 'o', size: 2, blocks: [0xCC00, 0xCC00, 0xCC00, 0xCC00], color: '#00aaaa' };
-var s = { id: 's', size: 3, blocks: [0x06C0, 0x8C40, 0x6C00, 0x4620], color: '#55ff55' };
-var t = { id: 't', size: 3, blocks: [0x0E40, 0x4C40, 0x4E00, 0x4640], color: '#aa0000' };
-var z = { id: 'z', size: 3, blocks: [0x0C60, 0x4C80, 0xC600, 0x2640], color: '#ff5555' };
-var f = { id: 'f', size: 4, blocks: [0x5F50, 0x2727, 0x0AFA, 0xE4E4], color: '#ffffff' };
+var i = {
+    id: 'i',
+    size: 4,
+    blocks: [0x0F00, 0x2222, 0x00F0, 0x4444],
+    color: '#ffff55'
+};
+var j = {
+    id: 'j',
+    size: 3,
+    blocks: [0x44C0, 0x8E00, 0x6440, 0x0E20],
+    color: '#0000aa'
+};
+var l = {
+    id: 'l',
+    size: 3,
+    blocks: [0x4460, 0x0E80, 0xC440, 0x2E00],
+    color: '#00aa00'
+};
+var o = {
+    id: 'o',
+    size: 2,
+    blocks: [0xCC00, 0xCC00, 0xCC00, 0xCC00],
+    color: '#00aaaa'
+};
+var s = {
+    id: 's',
+    size: 3,
+    blocks: [0x06C0, 0x8C40, 0x6C00, 0x4620],
+    color: '#55ff55'
+};
+var t = {
+    id: 't',
+    size: 3,
+    blocks: [0x0E40, 0x4C40, 0x4E00, 0x4640],
+    color: '#aa0000'
+};
+var z = {
+    id: 'z',
+    size: 3,
+    blocks: [0x0C60, 0x4C80, 0xC600, 0x2640],
+    color: '#ff5555'
+};
+var f = {
+    id: 'f',
+    size: 4,
+    blocks: [0x5F50, 0x2727, 0x0AFA, 0xE4E4],
+    color: '#ffffff'
+};
 
 var dropall = false;
 //------------------------------------------------
@@ -98,32 +175,34 @@ var dropall = false;
 // occupied block (x,y) for a given piece
 //------------------------------------------------
 function eachblock(type, x, y, dir, fn) {
-      var bit, result, row = 0, col = 0, blocks = type.blocks[dir];
-      for(bit = 0x8000 ; bit > 0 ; bit = bit >> 1) {
+    var bit, result, row = 0,
+        col = 0,
+        blocks = type.blocks[dir];
+    for (bit = 0x8000; bit > 0; bit = bit >> 1) {
         if (blocks & bit) {
-          fn(x + col, y + row);
+            fn(x + col, y + row);
         }
         if (++col === 4) {
-          col = 0;
-          ++row;
+            col = 0;
+            ++row;
         }
-      }
+    }
 };
 
 //-----------------------------------------------------
 // check if a piece can fit into a position in the grid
 //-----------------------------------------------------
 function occupied(type, x, y, dir) {
-      var result = false
-      eachblock(type, x, y, dir, function(x, y) {
-        if ((x < 0) || (x >= nx) || (y < 0) || (y >= ny) || getBlock(x,y))
-          result = true;
-      });
-      return result;
+    var result = false
+    eachblock(type, x, y, dir, function(x, y) {
+        if ((x < 0) || (x >= nx) || (y < 0) || (y >= ny) || getBlock(x, y))
+            result = true;
+    });
+    return result;
 };
 
 function unoccupied(type, x, y, dir) {
-      return !occupied(type, x, y, dir);
+    return !occupied(type, x, y, dir);
 };
 
 //-----------------------------------------
@@ -131,11 +210,17 @@ function unoccupied(type, x, y, dir) {
 // pick randomly until the 'bag is empty'
 //-----------------------------------------
 var pieces = [];
+
 function randomPiece() {
-      if (pieces.length == 0)
-	  pieces = [i,i,i,i,j,j,j,j,l,l,l,l,o,o,o,o,s,s,s,s,t,t,t,t,z,z,z,z,f,f,f,f];
-      var type = pieces.splice(random(0, pieces.length-1), 1)[0];
-      return { type: type, dir: DIR.UP, x: Math.round(random(0, nx - type.size)), y: 0 };
+    if (pieces.length == 0)
+        pieces = [i, i, i, i, j, j, j, j, l, l, l, l, o, o, o, o, s, s, s, s, t, t, t, t, z, z, z, z, f, f, f, f];
+    var type = pieces.splice(random(0, pieces.length - 1), 1)[0];
+    return {
+        type: type,
+        dir: DIR.UP,
+        x: Math.round(random(0, nx - type.size)),
+        y: 0
+    };
 };
 
 
@@ -145,65 +230,81 @@ function randomPiece() {
 
 function run() {
 
-      showStats(); // initialize FPS counter
-      addEvents(); // attach keydown and resize events
+    showStats(); // initialize FPS counter
+    addEvents(); // attach keydown and resize events
 
-      var last = now = timestamp();
-      function frame() {
+    var last = now = timestamp();
+
+    function frame() {
         now = timestamp();
         update(Math.min(1, (now - last) / 1000.0)); // using requestAnimationFrame have to be able to handle large delta's caused when it 'hibernates' in a background or non-visible tab
         draw();
         stats.update();
         last = now;
         requestAnimationFrame(frame, canvas);
-      }
+    }
 
-      resize(); // setup all our sizing information
-      reset();  // reset the per-game variables
-      frame();  // start the first frame
+    resize(); // setup all our sizing information
+    reset(); // reset the per-game variables
+    frame(); // start the first frame
 
 };
 
 function showStats() {
-      stats.domElement.id = 'stats';
-      get('menu').appendChild(stats.domElement);
+    stats.domElement.id = 'stats';
+    get('menu').appendChild(stats.domElement);
 };
 
 function addEvents() {
-      document.addEventListener('keydown', keydown, false);
-      window.addEventListener('resize', resize, false);
+    document.addEventListener('keydown', keydown, false);
+    window.addEventListener('resize', resize, false);
 };
 
 function resize(event) {
-      canvas.width   = canvas.clientWidth;  // set canvas logical size equal to its physical size
-      canvas.height  = canvas.clientHeight; // (ditto)
-      opcanvas.width = opcanvas.clientWidth;
-      opcanvas.height = opcanvas.clientHeight;
+    canvas.width = canvas.clientWidth; // set canvas logical size equal to its physical size
+    canvas.height = canvas.clientHeight; // (ditto)
+    opcanvas.width = opcanvas.clientWidth;
+    opcanvas.height = opcanvas.clientHeight;
 
-      ucanvas.width  = ucanvas.clientWidth;
-      ucanvas.height = ucanvas.clientHeight;
-      dx = canvas.width  / nx; // pixel size of a single tetris block
-      dy = canvas.height / ny; // (ditto)
-      invalidate();
-      invalidateNext();
+    ucanvas.width = ucanvas.clientWidth;
+    ucanvas.height = ucanvas.clientHeight;
+    dx = canvas.width / nx; // pixel size of a single tetris block
+    dy = canvas.height / ny; // (ditto)
+    invalidate();
+    invalidateNext();
 };
 
 function keydown(ev) {
-      var handled = false;
-      if (playing) {
-        switch(ev.keyCode) {
-          case KEY.LEFT:   actions.push(DIR.LEFT);  handled = true; break;
-          case KEY.RIGHT:  actions.push(DIR.RIGHT); handled = true; break;
-          case KEY.UP:     actions.push(DIR.UP);    handled = true; break;
-	  case KEY.DOWN:   actions.push(DIR.DOWN); dropall=true; handled = true; break;
-          case KEY.ESC:    lose();                  handled = true; break;
+    var handled = false;
+    if (playing) {
+        switch (ev.keyCode) {
+            case KEY.LEFT:
+                actions.push(DIR.LEFT);
+                handled = true;
+                break;
+            case KEY.RIGHT:
+                actions.push(DIR.RIGHT);
+                handled = true;
+                break;
+            case KEY.UP:
+                actions.push(DIR.UP);
+                handled = true;
+                break;
+            case KEY.DOWN:
+                actions.push(DIR.DOWN);
+                dropall = true;
+                handled = true;
+                break;
+            case KEY.ESC:
+                lose();
+                handled = true;
+                break;
         }
-      }
-      else if (ev.keyCode == KEY.SPACE) {
+    } else if (ev.keyCode == KEY.SPACE) {
         play();
         handled = true;
-      }
-      if (handled)
+    }
+    if (handled)
         ev.preventDefault(); // prevent arrow keys from scrolling the page (supported in IE9+ and all other browsers)
 };
 
@@ -214,195 +315,286 @@ function keydown(ev) {
 // GAME LOGIC
 //-------------------------------------------------------------------------
 
-function play() { 
-    hide('start'); 
-    reset();          
-    playing = true;  
-    socket.emit('start',true);
-};
-function lose() { show('start'); setVisualScore(); playing = false; 
-    socket.emit('loose',true);
+function play() {
+    hide('start');
+    reset();
+    playing = true;
+    socket.emit('start', true);
 };
 
-function setVisualScore(n)      { vscore = n || score; invalidateScore(); };
-function setScore(n)            { score = n; setVisualScore(n); 
-    socket.emit("score",score);  };
-function addScore(n)            { score = score + n;   socket.emit("score",score);  };
-function clearScore()           { setScore(0); };
-function clearRows()            { setRows(0); };
-function setRows(n)             { rows = n; step = Math.max(speed.min, speed.start - (speed.decrement*rows)); invalidateRows();  socket.emit("rows",rows); };
-function addRows(n)             { setRows(rows + n); };
-function addGnus(n)             { setGnus(gnus + n);  };
-function setGnus(n)             { gnus = n; socket.emit("gnus",gnus); invalidateGnus(); }
-function clearGnus()            { setGnus(0); };
+function lose() {
+    show('start');
+    setVisualScore();
+    playing = false;
+    socket.emit('loose', true);
+};
 
-function getBlock(x,y)          { return (blocks && blocks[x] ? blocks[x][y] : null); };
-function setBlock(x,y,type)     { blocks[x] = blocks[x] || []; blocks[x][y] = type; invalidate(); };
-function setOpBlock(x,y,type)     { op_blocks[x] = op_blocks[x] || []; op_blocks[x][y] = type; invalidateOp(); };
-function getOpBlock(x,y)          { return (op_blocks && op_blocks[x] ? op_blocks[x][y] : null); };
+function setVisualScore(n) {
+    vscore = n || score;
+    invalidateScore();
+};
 
-function clearBlocks()          { blocks = []; invalidate(); }
-function clearOpBlocks()        { op_blocks = []; invalidate(); }
-function clearActions()         { actions = []; };
-function setCurrentPiece(piece) { current = piece || randomPiece(); invalidate();     };
-function setNextPiece(piece)    { next    = piece || randomPiece(); invalidateNext(); };
+function setScore(n) {
+    score = n;
+    setVisualScore(n);
+    socket.emit("score", score);
+};
+
+function addScore(n) {
+    score = score + n;
+    socket.emit("score", score);
+};
+
+function clearScore() {
+    setScore(0);
+};
+
+function clearRows() {
+    setRows(0);
+};
+
+function setRows(n) {
+    rows = n;
+    step = Math.max(speed.min, speed.start - (speed.decrement * rows));
+    invalidateRows();
+    socket.emit("rows", rows);
+};
+
+function addRows(n) {
+    setRows(rows + n);
+};
+
+function addGnus(n) {
+    setGnus(gnus + n);
+};
+
+function setGnus(n) {
+    gnus = n;
+    socket.emit("gnus", gnus);
+    invalidateGnus();
+}
+
+function clearGnus() {
+    setGnus(0);
+};
+
+function getBlock(x, y) {
+    return (blocks && blocks[x] ? blocks[x][y] : null);
+};
+
+function setBlock(x, y, type) {
+    blocks[x] = blocks[x] || [];
+    blocks[x][y] = type;
+    invalidate();
+};
+
+function setOpBlock(x, y, type) {
+    op_blocks[x] = op_blocks[x] || [];
+    op_blocks[x][y] = type;
+    invalidateOp();
+};
+
+function getOpBlock(x, y) {
+    return (op_blocks && op_blocks[x] ? op_blocks[x][y] : null);
+};
+
+function clearBlocks() {
+    blocks = [];
+    invalidate();
+}
+
+function clearOpBlocks() {
+    op_blocks = [];
+    invalidate();
+}
+
+function clearActions() {
+    actions = [];
+};
+
+function setCurrentPiece(piece) {
+    current = piece || randomPiece();
+    invalidate();
+};
+
+function setNextPiece(piece) {
+    next = piece || randomPiece();
+    invalidateNext();
+};
 
 function reset() {
-      dt = 0;
-      clearActions();
-      clearBlocks();
-      clearOpBlocks();
-      clearRows();
-      clearGnus();
-      clearScore();
-      setCurrentPiece(next);
-      setNextPiece();
+    dt = 0;
+    clearActions();
+    clearBlocks();
+    clearOpBlocks();
+    clearRows();
+    clearGnus();
+    clearScore();
+    setCurrentPiece(next);
+    setNextPiece();
 };
 
 function update(idt) {
-      if (playing) {
+    if (playing) {
         if (vscore < score)
-          setVisualScore(vscore + 1);
+            setVisualScore(vscore + 1);
         handle(actions.shift());
         dt = dt + idt;
         if (dt > step) {
-          dt = dt - step;
-          drop();
-        } 
-      }
+            dt = dt - step;
+            drop();
+        }
+    }
 };
 
 function handle(action) {
-      switch(action) {
-        case DIR.LEFT:  move(DIR.LEFT);  break;
-        case DIR.RIGHT: move(DIR.RIGHT); break;
-        case DIR.UP:    rotate();        break;
-        case DIR.DOWN:  drop();          break;
-      }
+    switch (action) {
+        case DIR.LEFT:
+            move(DIR.LEFT);
+            break;
+        case DIR.RIGHT:
+            move(DIR.RIGHT);
+            break;
+        case DIR.UP:
+            rotate();
+            break;
+        case DIR.DOWN:
+            drop();
+            break;
+    }
 };
 
 function move(dir) {
-      socket.emit("cur",current);
-      var x = current.x, y = current.y;
-      switch(dir) {
-        case DIR.RIGHT: x = x + 1; break;
-        case DIR.LEFT:  x = x - 1; break;
-        case DIR.DOWN:  y = y + 1; break;
-      }
-      if (unoccupied(current.type, x, y, current.dir)) {
+    socket.emit("cur", current);
+    var x = current.x,
+        y = current.y;
+    switch (dir) {
+        case DIR.RIGHT:
+            x = x + 1;
+            break;
+        case DIR.LEFT:
+            x = x - 1;
+            break;
+        case DIR.DOWN:
+            y = y + 1;
+            break;
+    }
+    if (unoccupied(current.type, x, y, current.dir)) {
         current.x = x;
         current.y = y;
         invalidate();
-	if (dropall) {
-	    while (unoccupied(current.type, x, y, current.dir)) {
-		y = y + 1;
-		current.y = y;
-	    }
-	    y = y - 1;
-	    dt = dt - step;
-	    current.y = y;
-	    dropall = false;
-	}
+        if (dropall) {
+            while (unoccupied(current.type, x, y, current.dir)) {
+                y = y + 1;
+                current.y = y;
+            }
+            y = y - 1;
+            dt = dt - step;
+            current.y = y;
+            dropall = false;
+        }
         return true;
-      }
-      else {
+    } else {
         return false;
-      }
-    };
+    }
+};
 
 function rotate(dir) {
-      var newdir = (current.dir == DIR.MAX ? DIR.MIN : current.dir + 1);
-      if (unoccupied(current.type, current.x, current.y, newdir)) {
+    var newdir = (current.dir == DIR.MAX ? DIR.MIN : current.dir + 1);
+    if (unoccupied(current.type, current.x, current.y, newdir)) {
         current.dir = newdir;
         invalidate();
-      }
+    }
 };
 
 function drop() {
-      if (!move(DIR.DOWN)) {
+    if (!move(DIR.DOWN)) {
         addScore(10);
-	console.log("curr",current.type.id,current.x,current.y,current.dir)
-	    socket.emit('down',{type:current.type,
-			x:current.x,
-			y:current.y,
-			dir:current.dir});
+        console.log("curr", current.type.id, current.x, current.y, current.dir)
+        socket.emit('down', {
+            type: current.type,
+            x: current.x,
+            y: current.y,
+            dir: current.dir
+        });
         dropPiece();
         removeLines();
         setCurrentPiece(next);
         setNextPiece(randomPiece());
         clearActions();
-	//	console.log("blocks",blocks);
-	var x, y, block;
-        for(y = 0 ; y < ny ; y++) {
-          for (x = 0 ; x < nx ; x++) {
-	      if (block = getBlock(x,y)) {
-		  //		console.log("block",x,y,block.color);
-	      } else {
-		  //		console.log("block",x,y,"000000");
-	      }
-	  }
-	}
-        if (occupied(current.type, current.x, current.y, current.dir)) {
-          lose();
+        //	console.log("blocks",blocks);
+        var x, y, block;
+        for (y = 0; y < ny; y++) {
+            for (x = 0; x < nx; x++) {
+                if (block = getBlock(x, y)) {
+                    //		console.log("block",x,y,block.color);
+                } else {
+                    //		console.log("block",x,y,"000000");
+                }
+            }
         }
-      }
+        if (occupied(current.type, current.x, current.y, current.dir)) {
+            lose();
+        }
+    }
 };
 
 function dropPiece() {
-      eachblock(current.type, current.x, current.y, current.dir, function(x, y) {
+    eachblock(current.type, current.x, current.y, current.dir, function(x, y) {
         setBlock(x, y, current.type);
-      });
+    });
 };
 
 function removeLines() {
-      var x, y, complete, n = 0;
-      for(y = ny ; y > 0 ; --y) {
+    var x, y, complete, n = 0;
+    for (y = ny; y > 0; --y) {
         complete = true;
-        for(x = 0 ; x < nx ; ++x) {
-          if (!getBlock(x, y))
-            complete = false;
+        for (x = 0; x < nx; ++x) {
+            if (!getBlock(x, y))
+                complete = false;
         }
         if (complete) {
-          removeLine(y);
-	  console.log("Remove line",y);
-          y = y + 1; // recheck same line
-          n++;
+            removeLine(y);
+            console.log("Remove line", y);
+            y = y + 1; // recheck same line
+            n++;
         }
-      }
-      if (n > 0) {
+    }
+    if (n > 0) {
         addRows(n);
-	addGnus(n);
-        addScore(100*Math.pow(2,n-1)); // 1: 100, 2: 200, 3: 400, 4: 800
-      }
-    };
+        addGnus(n);
+        addScore(100 * Math.pow(2, n - 1)); // 1: 100, 2: 200, 3: 400, 4: 800
+    }
+};
 
 function removeLine(n) {
-      var x, y;
-      for(y = n ; y >= 0 ; --y) {
-        for(x = 0 ; x < nx ; ++x)
-          setBlock(x, y, (y == 0) ? null : getBlock(x, y-1));
-      }
+    var x, y;
+    for (y = n; y >= 0; --y) {
+        for (x = 0; x < nx; ++x)
+            setBlock(x, y, (y == 0) ? null : getBlock(x, y - 1));
+    }
 };
 
 function removeOpLine(n) {
-      var x, y;
-      for(y = n ; y >= 0 ; --y) {
-        for(x = 0 ; x < nx ; ++x)
-          setOpBlock(x, y, (y == 0) ? null : getOpBlock(x, y-1));
-      }
+    var x, y;
+    for (y = n; y >= 0; --y) {
+        for (x = 0; x < nx; ++x)
+            setOpBlock(x, y, (y == 0) ? null : getOpBlock(x, y - 1));
+    }
 };
+
 function removeOpLines() {
-      var x, y, complete = 0;
-      for(y = ny ; y > 0 ; --y) {
+    var x, y, complete = 0;
+    for (y = ny; y > 0; --y) {
         complete = true;
-        for(x = 0 ; x < nx ; ++x) {
-          if (!getOpBlock(x, y))
-            complete = false;
+        for (x = 0; x < nx; ++x) {
+            if (!getOpBlock(x, y))
+                complete = false;
         }
-	if (complete) {
-	    removeOpLine(y);
-	}
-      }
+        if (complete) {
+            removeOpLine(y);
+        }
+    }
 }
 
 //-------------------------------------------------------------------------
@@ -411,104 +603,121 @@ function removeOpLines() {
 
 var invalid = {};
 
-function invalidate()         { invalid.court  = true; }
-function invalidateOp()       { invalid.op_court= true; }
-function invalidateNext()     { invalid.next   = true; }
-function invalidateScore()    { invalid.score  = true; }
-function invalidateRows()     { invalid.rows   = true; }
-function invalidateGnus()     { invalid.gnus   = true; }
+function invalidate() {
+    invalid.court = true;
+}
+
+function invalidateOp() {
+    invalid.op_court = true;
+}
+
+function invalidateNext() {
+    invalid.next = true;
+}
+
+function invalidateScore() {
+    invalid.score = true;
+}
+
+function invalidateRows() {
+    invalid.rows = true;
+}
+
+function invalidateGnus() {
+    invalid.gnus = true;
+}
 
 function draw() {
-      ctx.save();
-      ctx.lineWidth = 1;
-      ctx.translate(0.5, 0.5); // for crisp 1px black lines
-      drawCourt();
-      drawNext();
-      drawScore();
-      drawRows();
-      drawGnus();
-      ctx.restore();
+    ctx.save();
+    ctx.lineWidth = 1;
+    ctx.translate(0.5, 0.5); // for crisp 1px black lines
+    drawCourt();
+    drawNext();
+    drawScore();
+    drawRows();
+    drawGnus();
+    ctx.restore();
 };
 
 function drawCourt() {
-      if (invalid.court) {
+    if (invalid.court) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         if (playing)
-          drawPiece(ctx, current.type, current.x, current.y, current.dir);
+            drawPiece(ctx, current.type, current.x, current.y, current.dir);
         var x, y, block;
-        for(y = 0 ; y < ny ; y++) {
-          for (x = 0 ; x < nx ; x++) {
-            if (block = getBlock(x,y))
-              drawBlock(ctx, x, y, block.color);
-          }
+        for (y = 0; y < ny; y++) {
+            for (x = 0; x < nx; x++) {
+                if (block = getBlock(x, y))
+                    drawBlock(ctx, x, y, block.color);
+            }
         }
-        ctx.strokeRect(0, 0, nx*dx - 1, ny*dy - 1); // court boundary
+        ctx.strokeRect(0, 0, nx * dx - 1, ny * dy - 1); // court boundary
         invalid.court = false;
-      }
+    }
 };
 
 function drawOpCourt() {
-      if (invalid.op_court) {
+    if (invalid.op_court) {
         opctx.clearRect(0, 0, canvas.width, canvas.height);
-	if (playing)
-		  drawPiece(opctx, opcurrent.type, opcurrent.x, opcurrent.y, opcurrent.dir);
+        if (playing)
+            drawPiece(opctx, opcurrent.type, opcurrent.x, opcurrent.y, opcurrent.dir);
         var x, y, block;
-        for(y = 0 ; y < ny ; y++) {
-          for (x = 0 ; x < nx ; x++) {
-            if (block = getOpBlock(x,y))
-              drawBlock(opctx, x, y, block.color);
-          }
+        for (y = 0; y < ny; y++) {
+            for (x = 0; x < nx; x++) {
+                if (block = getOpBlock(x, y))
+                    drawBlock(opctx, x, y, block.color);
+            }
         }
-        opctx.strokeRect(0, 0, nx*dx - 1, ny*dy - 1); // court boundary
+        opctx.strokeRect(0, 0, nx * dx - 1, ny * dy - 1); // court boundary
         invalid.op_court = false;
-      }
+    }
 };
 
 function drawNext() {
-      if (invalid.next) {
+    if (invalid.next) {
         var padding = (nu - next.type.size) / 2; // half-arsed attempt at centering next piece display
         uctx.save();
         uctx.translate(0.5, 0.5);
-        uctx.clearRect(0, 0, nu*dx, nu*dy);
+        uctx.clearRect(0, 0, nu * dx, nu * dy);
         drawPiece(uctx, next.type, padding, padding, next.dir);
         uctx.strokeStyle = 'black';
-        uctx.strokeRect(0, 0, nu*dx - 1, nu*dy - 1);
+        uctx.strokeRect(0, 0, nu * dx - 1, nu * dy - 1);
         uctx.restore();
         invalid.next = false;
-      }
+    }
 };
 
 function drawScore() {
-      if (invalid.score) {
+    if (invalid.score) {
         html('score', ("00000" + Math.floor(vscore)).slice(-5));
         invalid.score = false;
-      }
+    }
 };
 
 function drawRows() {
-      if (invalid.rows) {
+    if (invalid.rows) {
         html('rows', rows);
         invalid.rows = false;
-      }
+    }
 };
 
 function drawGnus() {
-      if (invalid.gnus) {
+    if (invalid.gnus) {
         html('gnus', gnus);
         invalid.gnus = false;
-      }
+    }
 };
 
 function drawPiece(ctx, type, x, y, dir) {
-      eachblock(type, x, y, dir, function(x, y) {
+    eachblock(type, x, y, dir, function(x, y) {
         drawBlock(ctx, x, y, type.color);
-      });
+    });
 };
 
 function drawBlock(ctx, x, y, color) {
-      ctx.fillStyle = color;
-      ctx.fillRect(x*dx, y*dy, dx, dy);
-      ctx.strokeRect(x*dx, y*dy, dx, dy)
+    ctx.fillStyle = color;
+    ctx.fillRect(x * dx, y * dy, dx, dy);
+    ctx.strokeRect(x * dx, y * dy, dx, dy)
 };
 
 
@@ -517,43 +726,43 @@ function drawBlock(ctx, x, y, color) {
 //-------------------------------------------------------------------------
 
 
-socket.on('game_ready', function (data) {
-	console.log('game_ready');
-	hide('startinfo');
-	show('tetris');
+socket.on('game_ready', function(data) {
+    console.log('game_ready');
+    hide('startinfo');
+    show('tetris');
 
 });
 
-socket.on('op_score', function (data) {
-        html('scoreop', ("00000" + Math.floor(data)).slice(-5));
+socket.on('op_score', function(data) {
+    html('scoreop', ("00000" + Math.floor(data)).slice(-5));
 });
-socket.on('op_rows', function (data) {
-	html('rowsop',data);
+socket.on('op_rows', function(data) {
+    html('rowsop', data);
 });
-socket.on('op_gnus', function (data) {
-	html('gnusop',data);
-});
-
-socket.on('op_down', function (data) {
-      eachblock(data.type, data.x, data.y, data.dir, function(x, y) {
-	      console.log('setBlock(',x, y, data.type.id);
-	      setOpBlock(x, y, data.type);
-	      drawOpCourt();
-	      removeOpLines();
-      });   
+socket.on('op_gnus', function(data) {
+    html('gnusop', data);
 });
 
-socket.on('op_cur', function (data) {
-	opcurrent=data;
-	invalidateOp();
-	drawOpCourt();
+socket.on('op_down', function(data) {
+    eachblock(data.type, data.x, data.y, data.dir, function(x, y) {
+        console.log('setBlock(', x, y, data.type.id);
+        setOpBlock(x, y, data.type);
+        drawOpCourt();
+        removeOpLines();
+    });
+});
+
+socket.on('op_cur', function(data) {
+    opcurrent = data;
+    invalidateOp();
+    drawOpCourt();
 
 });
 
-socket.on('start', function (data) {
-	if (!playing) {
-	    play();
-	}
+socket.on('start', function(data) {
+    if (!playing) {
+        play();
+    }
 });
 
 
