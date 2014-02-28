@@ -37,12 +37,21 @@ var KEY     = { ESC: 27, SPACE: 32, LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40 },
     speed   = { start: 0.6, decrement: 0.005, min: 0.1 }, // how long before piece drops by 1 row (seconds)
     nx      = 8, // width of tetris court (in blocks)
     ny      = 20, // height of tetris court (in blocks)
-    nu      = 5;  // width/height of upcoming preview (in blocks)
+    nu      = 5,  // width/height of upcoming preview (in blocks)
+    port    = window.location.port,
+    host    = window.location.host;
+if (port=="")
+   port="80" 
 
+if (window.location.protocol == "file:") {
+    port="8080"
+    host="localhost"
+}
+console.log("socket-url="+host+':'+port);
 //-------------------------------------------------------------------------
 // game variables (initialized during reset)
 //-------------------------------------------------------------------------
-var socket = io.connect('http://fishtris.de:80');
+var socket = io.connect('http://'+host+':'+port);
 
 var dx, dy,        // pixel size of a single tetris block
     blocks,        // 2 dimensional array (nx*ny) representing tetris court - either empty block or occupied by a 'piece'
