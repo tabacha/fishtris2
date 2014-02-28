@@ -6,11 +6,20 @@ app.listen(8080);
 
 
 function handler (req, res) {
-  fs.readFile(__dirname + '/index.html',
+  console.log(req.url);
+  var filename = 'error.html';
+  if (req.url == '/') 
+      filename = 'index.html';
+  if (req.url == '/fishtris.js') 
+      filename = 'fishtris.js';
+  if (req.url == '/stats.js') 
+      filename = 'stats.js';
+
+  fs.readFile(__dirname + '/../' + filename,
   function (err, data) {
     if (err) {
       res.writeHead(500);
-      return res.end('Error loading index.html');
+      return res.end('Error loading '+filename);
     }
 
     res.writeHead(200);
