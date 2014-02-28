@@ -1,7 +1,7 @@
 //-------------------------------------------------------------------------
 // base helper methods
 //-------------------------------------------------------------------------
-
+var mt = new MersenneTwister();
 function get(id) {
     return document.getElementById(id);
 };
@@ -23,12 +23,9 @@ function timestamp() {
 };
 
 function random(min, max) {
-    return (min + (Math.random() * (max - min)));
+    return (min + (mt.rnd() * (max - min)));
 };
 
-function randomChoice(choices) {
-    return choices[Math.round(random(0, choices.length - 1))];
-};
 
 if (!window.requestAnimationFrame) { // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
     window.requestAnimationFrame = window.webkitRequestAnimationFrame ||
@@ -169,6 +166,42 @@ var f = {
     color: '#ffffff'
 };
 
+// FISHTRIS Actions
+
+var fishtrisActions = [
+    {id:"Ringel",
+     gnu:12
+    },
+    {id:"Wonne",
+     gnu:15
+    },
+    {id:"Riegel",
+     gnu:20
+    },
+    {id:"Schneck",
+     gnu: 24
+    },
+    {id:"Gnubaby",
+     gnu: 3
+    },
+    {id:"Tonne",
+     gnu: 6
+    },
+    {id:"Blubber",
+     gnu: 8
+    },
+    {id:"BigFISH",
+     gnu: 22
+    },
+    {id:"Bohrer",
+     gnu: 26
+    },
+    {id:"OberGNU",
+     gnu: 30
+    },
+
+]; 
+
 var dropall = false;
 //------------------------------------------------
 // do the bit manipulation and iterate through each
@@ -218,7 +251,7 @@ function randomPiece() {
     return {
         type: type,
         dir: DIR.UP,
-        x: Math.round(random(0, nx - type.size)),
+        x: Math.round(( nx - type.size)/2),
         y: 0
     };
 };
@@ -726,8 +759,11 @@ function drawBlock(ctx, x, y, color) {
 //-------------------------------------------------------------------------
 
 
-socket.on('game_ready', function(data) {
-    console.log('game_ready');
+socket.on('game_ready', function(seed) {
+	console.log('game_ready',seed);
+    mt = new MersenneTwister(seed);
+    pieces = [];
+    setNextPiece();
     hide('startinfo');
     show('tetris');
 
