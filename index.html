@@ -10,6 +10,8 @@
     .menu     { display: inline-block; vertical-align: top; position: relative; }
     .menu p   { margin: 0.5em 0; text-align: center; }
     .menu p a { text-decoration: none; color: black; }
+    .action-active { color: blue; text-decoration: underline; background: #D0D0D0; border: 2px solid black; border-radius: 15px; }
+    .action-disabled { color: grey; }
     .upcoming { display: block; margin: 0 auto; background-color: #E0E0E0; }
     .score    { color: red; font-weight: bold; vertical-align: middle; }
     .rows     { color: blue; font-weight: bold; vertical-align: middle; }
@@ -32,8 +34,8 @@
       <p>score <span id="score" class="score">00000</span></p>
       <p>rows <span id="rows" class="rows">0</span></p>
       <p>gnus <span id="gnus" class="rows">0</span></p>
-      <p><span id="Ringel">Ringel</span><br/>
-	<span id="Wonne">Wonne</span><br/>
+      <p><span id="Ringel" class="action-active">Ringel</span><br/>
+	<span id="Wonne" class="action-disabled">Wonne</span><br/>
 	<span id="Riegel">Riegel</span><br/>
 	<span id="Schneck">Schneck</span><br/>
     </div>
@@ -48,7 +50,7 @@
       <p>score <span id="scoreop" class="score">00000</span></p>
       <p>rows <span id="rowsop" class="rows">0</span></p>
       <p>gnus <span id="gnusop" class="rows">0</span></p>
-      <p><span id="Gunbaby">Gnubaby</span><br/>
+      <p><span id="Gnubaby">Gnubaby</span><br/>
 	<span id="Tonne">Tonne</span><br/>
 	<span id="Blubber">Blubber</span><br/>
 	<span id="BigFISH">BigFISH</span> <br/>

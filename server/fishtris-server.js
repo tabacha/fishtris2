@@ -78,9 +78,22 @@ io.sockets.on('connection', function(socket) {
         });
 
     });
+    socket.on('fishtris', function(data) {
+        socket.get('myroom', function(err, room) {
+            console.log('fishtris ', room);
+            socket.broadcast.to(room).emit('op_fishtris', data);
+        });
+
+    });
     socket.on('start', function(data) {
         socket.get('myroom', function(err, room) {
             socket.broadcast.to(room).emit('start', data);
+        });
+
+    });
+    socket.on('next', function(data) {
+        socket.get('myroom', function(err, room) {
+            socket.broadcast.to(room).emit('op_next', data);
         });
 
     });
