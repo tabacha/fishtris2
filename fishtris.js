@@ -2,6 +2,7 @@
 // base helper methods
 //-------------------------------------------------------------------------
 var mt = new MersenneTwister();
+
 function get(id) {
     return document.getElementById(id);
 };
@@ -27,7 +28,7 @@ function random(min, max) {
 };
 
 function setClass(id, cl) {
-    get(id).className=cl;
+    get(id).className = cl;
 }
 
 
@@ -93,7 +94,7 @@ console.log("socket-url=" + host + ':' + port);
 //-------------------------------------------------------------------------
 var socket = io.connect('http://' + host + ':' + port);
 
-var speedRows =0;
+var speedRows = 0;
 var dx, dy, // pixel size of a single tetris block
     blocks, // 2 dimensional array (nx*ny) representing tetris court - either empty block or occupied by a 'piece'
     op_blocks,
@@ -175,158 +176,155 @@ var f = {
 
 // FISHTRIS Actions
 
-var fishtrisActions = [
-    {id:"Ringel",
-     gnu:12,
-     action: function () {
-	    removeLine(ny);
-	},
-     op_action: function () {
-	    removeOpLine(ny);
-	}
-    },
-    {id:"Wonne",
-     gnu:15,
-     action: function () {
-	    fishtris_pieces.push({type:i, 
-				  dir:DIR.UP, 
-				  x: Math.round((nx- i.size)/2),
-				  y:0
-		});
-	},
-     op_action: function () {
-	}
+var fishtrisActions = [{
+        id: "Ringel",
+        gnu: 12,
+        action: function() {
+            removeLine(ny);
+        },
+        op_action: function() {
+            removeOpLine(ny);
+        }
+    }, {
+        id: "Wonne",
+        gnu: 15,
+        action: function() {
+            fishtris_pieces.push({
+                type: i,
+                dir: DIR.UP,
+                x: Math.round((nx - i.size) / 2),
+                y: 0
+            });
+        },
+        op_action: function() {}
 
-    },
-    {id:"Riegel",
-     gnu:20,
-     action: function () {
-	    removeLine(ny);
-	    removeLine(ny);
-	    removeLine(ny);
-	},
-     op_action: function () {
-	    removeOpLine(ny);
-	}
-    },
-    {id:"Schneck",
-     gnu: 24,
-     action: function () {
-	    speedRows = speedRows - 100;
-	    setRows(rows);
-	},
-     op_action: function () {
-	}
+    }, {
+        id: "Riegel",
+        gnu: 20,
+        action: function() {
+            removeLine(ny);
+            removeLine(ny);
+            removeLine(ny);
+        },
+        op_action: function() {
+            removeOpLine(ny);
+        }
+    }, {
+        id: "Schneck",
+        gnu: 24,
+        action: function() {
+            speedRows = speedRows - 100;
+            setRows(rows);
+        },
+        op_action: function() {}
 
-    },
-    {id:"Gnubaby",
-     gnu: 3,
-     action: function () {
-	    removeOpLine(ny);
-	},
-     op_action: function () {
-	    removeLine(ny);
-	}
-    },
-    {id:"Tonne",
-     gnu: 6,
-     action: function () {
-	},
-     op_action: function () {
-	    fishtris_pieces.push({type:i, 
-				  dir:DIR.UP, 
-				  x: Math.round((nx- i.size)/2),
-				  y:0
-		});
-	}
-    },
-    {id:"Blubber",
-     gnu: 8,
-     action: function () {
-	    removeOpLine(ny);
-	    removeOpLine(ny);
-	    removeOpLine(ny);
-	},
-     op_action: function () {
-	    removeLine(ny);
-	    removeLine(ny);
-	    removeLine(ny);
-	}
-    },
-    {id:"BigFISH",
-     gnu: 22,
-     action: function () {
-	},
-     op_action: function () {
-	    fishtris_pieces.push({type:f, 
-				  dir:DIR.UP, 
-				  x: Math.round((nx- f.size)/2),
-				  y:0
-		});
-	}
-    },
-    {id:"Bohrer",
-     gnu: 26,
-     action: function () {
-	    var x, y;
-	    for (y = 0; y < ny; ++y) {
-		for (x = 0; x < nx; ++x) {
-		    if (getOpBlock(x,y)!= null) {
-			var tmp=(x+y)%3;
-			if (tmp==1) {
-			    setOpBlock(x, y, null );
-			}
-		    }
-		}
-	    }
+    }, {
+        id: "Gnubaby",
+        gnu: 3,
+        action: function() {
+            removeOpLine(ny);
+        },
+        op_action: function() {
+            removeLine(ny);
+        }
+    }, {
+        id: "Tonne",
+        gnu: 6,
+        action: function() {},
+        op_action: function() {
+            fishtris_pieces.push({
+                type: i,
+                dir: DIR.UP,
+                x: Math.round((nx - i.size) / 2),
+                y: 0
+            });
+        }
+    }, {
+        id: "Blubber",
+        gnu: 8,
+        action: function() {
+            removeOpLine(ny);
+            removeOpLine(ny);
+            removeOpLine(ny);
+        },
+        op_action: function() {
+            removeLine(ny);
+            removeLine(ny);
+            removeLine(ny);
+        }
+    }, {
+        id: "BigFISH",
+        gnu: 22,
+        action: function() {},
+        op_action: function() {
+            fishtris_pieces.push({
+                type: f,
+                dir: DIR.UP,
+                x: Math.round((nx - f.size) / 2),
+                y: 0
+            });
+        }
+    }, {
+        id: "Bohrer",
+        gnu: 26,
+        action: function() {
+            var x, y;
+            for (y = 0; y < ny; ++y) {
+                for (x = 0; x < nx; ++x) {
+                    if (getOpBlock(x, y) != null) {
+                        var tmp = (x + y) % 3;
+                        if (tmp == 1) {
+                            setOpBlock(x, y, null);
+                        }
+                    }
+                }
+            }
 
-	},
-     op_action: function () {
-	    var x, y;
-	    for (y = 0; y < ny; ++y) {
-		for (x = 0; x < nx; ++x) {
-		    if (getBlock(x,y)!= null) {
-			var tmp=(x+y)%3;
-			if (tmp==1) {
-			    setBlock(x, y, null );
-			}
-		    }
-		}
-	    }
-	}
-    },
-    {id:"OberGNU",
-     gnu: 30,
-     action: function () {
-	},
-     op_action: function () {
-	    speedRows = speedRows + 100;
-	    setRows(rows);
-	}
+        },
+        op_action: function() {
+            var x, y;
+            for (y = 0; y < ny; ++y) {
+                for (x = 0; x < nx; ++x) {
+                    if (getBlock(x, y) != null) {
+                        var tmp = (x + y) % 3;
+                        if (tmp == 1) {
+                            setBlock(x, y, null);
+                        }
+                    }
+                }
+            }
+        }
+    }, {
+        id: "OberGNU",
+        gnu: 30,
+        action: function() {},
+        op_action: function() {
+            speedRows = speedRows + 100;
+            setRows(rows);
+        }
     },
 
-]; 
+];
 
 function setGnuStatus() {
-    fishtrisActions.forEach(function (action) {
-	    if (get(action.id)==null) {
-		console.log("Action '"+action.id+"' not found in html");
-	    }
-	    if (gnus>=action.gnu) {
-		setClass(action.id,"action-active");
-		get(action.id).onclick=function () {
-		    console.log("click"+action.id);
-		    socket.emit('fishtris',action.id);
-		    addGnus(0-action.gnu);
-		    action.action();
-		};
-	    } else {
-		setClass(action.id,"action-disabled");
-		get(action.id).onclick=function () {
-		};
+    fishtrisActions.forEach(function(action) {
+        if (get(action.id) == null) {
+            console.log("Action '" + action.id + "' not found in html");
+        }
+        if (gnus >= action.gnu) {
+            setClass(action.id, "action-active");
+            get(action.id).onclick = function() {
+                console.log("click" + action.id);
+                socket.emit('fishtris', action.id);
+                addGnus(0 - action.gnu);
+                action.action();
+            };
+        } else {
+            setClass(action.id, "action-disabled");
+            get(action.id).onclick = function() {};
 
-	    }
-	});
+        }
+    });
 };
 
 var dropall = false;
@@ -379,7 +377,7 @@ function randomPiece() {
     return {
         type: type,
         dir: DIR.UP,
-        x: Math.round(( nx - type.size)/2),
+        x: Math.round((nx - type.size) / 2),
         y: 0
     };
 };
@@ -685,12 +683,12 @@ function drop() {
         });
         dropPiece();
         removeLines();
-	if (fishtris_pieces.length == 0) {
-	    setCurrentPiece(next);
-	    setNextPiece(randomPiece());
-	} else {
-	    setCurrentPiece(fishtris_pieces.pop());
-	}
+        if (fishtris_pieces.length == 0) {
+            setCurrentPiece(next);
+            setNextPiece(randomPiece());
+        } else {
+            setCurrentPiece(fishtris_pieces.pop());
+        }
         clearActions();
         //	console.log("blocks",blocks);
         var x, y, block;
@@ -845,7 +843,7 @@ function drawOpCourt() {
 
 function drawNext() {
     if (invalid.next) {
-	socket.emit("next",next);
+        socket.emit("next", next);
         var padding = (nu - next.type.size) / 2; // half-arsed attempt at centering next piece display
         uctx.save();
         uctx.translate(0.5, 0.5);
@@ -898,7 +896,7 @@ function drawBlock(ctx, x, y, color) {
 
 
 socket.on('game_ready', function(seed) {
-	console.log('game_ready',seed);
+    console.log('game_ready', seed);
     mt = new MersenneTwister(seed);
     pieces = [];
     setNextPiece();
@@ -939,24 +937,24 @@ socket.on('start', function(data) {
     }
 });
 socket.on('op_next', function(next) {
-	console.log("op_next"+next.type.id);
- var padding = (nu - next.type.size) / 2; // half-arsed attempt at centering next piece display
- opuctx.save();
- opuctx.translate(0.5, 0.5);
- opuctx.clearRect(0, 0, nu * dx, nu * dy);
- drawPiece(opuctx, next.type, padding, padding, next.dir);
- opuctx.strokeStyle = 'black';
- opuctx.strokeRect(0, 0, nu * dx - 1, nu * dy - 1);
- opuctx.restore();
+    console.log("op_next" + next.type.id);
+    var padding = (nu - next.type.size) / 2; // half-arsed attempt at centering next piece display
+    opuctx.save();
+    opuctx.translate(0.5, 0.5);
+    opuctx.clearRect(0, 0, nu * dx, nu * dy);
+    drawPiece(opuctx, next.type, padding, padding, next.dir);
+    opuctx.strokeStyle = 'black';
+    opuctx.strokeRect(0, 0, nu * dx - 1, nu * dy - 1);
+    opuctx.restore();
 });
 
 socket.on('op_fishtris', function(id) {
-	console.log("op_fishtris "+id);
-   fishtrisActions.forEach(function (action) {
-      if ( action.id == id ) {
-	  action.op_action();
-      }
-   })
+    console.log("op_fishtris " + id);
+    fishtrisActions.forEach(function(action) {
+        if (action.id == id) {
+            action.op_action();
+        }
+    })
 });
 
 //-------------------------------------------------------------------------

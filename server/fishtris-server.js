@@ -4,7 +4,7 @@ var app = require('http').createServer(handler),
     fs = require('fs')
     app.listen(8080);
 
-var seed=Math.round(Math.random(0, 999999));
+var seed = Math.round(Math.random(0, 999999));
 
 function handler(req, res) {
     console.log(req.url);
@@ -16,7 +16,7 @@ function handler(req, res) {
     if (req.url == '/stats.js')
         filename = 'stats.js';
     if (req.url == '/MersenneTwister.js')
-	filename = 'MersenneTwister.js';
+        filename = 'MersenneTwister.js';
     fs.readFile(__dirname + '/../' + filename,
         function(err, data) {
             if (err) {
@@ -31,7 +31,7 @@ function handler(req, res) {
 
 io.sockets.on('connection', function(socket) {
     socket.emit('logininfo', {
-	    player: player
+        player: player
 
     });
     var roomno = Math.floor(player / 2);
