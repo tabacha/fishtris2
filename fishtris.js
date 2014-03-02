@@ -666,7 +666,6 @@ function rotate(dir) {
 function drop() {
     if (!move(DIR.DOWN)) {
         addScore(10);
-        console.log("curr", current.type.id, current.x, current.y, current.dir)
         socket.emit('down', {
             type: current.type,
             x: current.x,
@@ -682,17 +681,6 @@ function drop() {
             setCurrentPiece(fishtris_pieces.pop());
         }
         clearActions();
-        //	console.log("blocks",blocks);
-        var x, y, block;
-        for (y = 0; y < ny; y++) {
-            for (x = 0; x < nx; x++) {
-                if (block = getBlock(x, y)) {
-                    //		console.log("block",x,y,block.color);
-                } else {
-                    //		console.log("block",x,y,"000000");
-                }
-            }
-        }
         if (occupied(current.type, current.x, current.y, current.dir)) {
             lose();
         }
