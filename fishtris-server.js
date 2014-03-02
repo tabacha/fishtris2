@@ -13,11 +13,9 @@ function handler(req, res) {
         filename = 'index.html';
     if (req.url == '/fishtris.js')
         filename = 'fishtris.js';
-    if (req.url == '/stats.js')
-        filename = 'stats.js';
     if (req.url == '/MersenneTwister.js')
         filename = 'MersenneTwister.js';
-    fs.readFile(__dirname + '/../' + filename,
+    fs.readFile(__dirname + '/' + filename,
         function(err, data) {
             if (err) {
                 res.writeHead(500);
