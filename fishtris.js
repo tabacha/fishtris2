@@ -124,53 +124,55 @@ var dx, dy, // pixel size of a single tetris block
 //
 //-------------------------------------------------------------------------
 
-var i = {
-    id: 'i',
-    size: 4,
-    blocks: [0x0F00, 0x2222, 0x00F0, 0x4444],
-    color: '#ffff55'
-};
-var j = {
-    id: 'j',
-    size: 3,
-    blocks: [0x44C0, 0x8E00, 0x6440, 0x0E20],
-    color: '#0000aa'
-};
-var l = {
-    id: 'l',
-    size: 3,
-    blocks: [0x4460, 0x0E80, 0xC440, 0x2E00],
-    color: '#00aa00'
-};
-var o = {
-    id: 'o',
-    size: 2,
-    blocks: [0xCC00, 0xCC00, 0xCC00, 0xCC00],
-    color: '#00aaaa'
-};
-var s = {
-    id: 's',
-    size: 3,
-    blocks: [0x06C0, 0x8C40, 0x6C00, 0x4620],
-    color: '#55ff55'
-};
-var t = {
-    id: 't',
-    size: 3,
-    blocks: [0x0E40, 0x4C40, 0x4E00, 0x4640],
-    color: '#aa0000'
-};
-var z = {
-    id: 'z',
-    size: 3,
-    blocks: [0x0C60, 0x4C80, 0xC600, 0x2640],
-    color: '#ff5555'
-};
-var f = {
-    id: 'f',
-    size: 4,
-    blocks: [0x5F50, 0x2727, 0x0AFA, 0xE4E4],
-    color: '#ffffff'
+var stone = {
+    i: {
+        id: 'i',
+        size: 4,
+        blocks: [0x0F00, 0x2222, 0x00F0, 0x4444],
+        color: '#ffff55'
+    },
+    j: {
+        id: 'j',
+        size: 3,
+        blocks: [0x44C0, 0x8E00, 0x6440, 0x0E20],
+        color: '#0000aa'
+    },
+    l: {
+        id: 'l',
+        size: 3,
+        blocks: [0x4460, 0x0E80, 0xC440, 0x2E00],
+        color: '#00aa00'
+    },
+    o: {
+        id: 'o',
+        size: 2,
+        blocks: [0xCC00, 0xCC00, 0xCC00, 0xCC00],
+        color: '#00aaaa'
+    },
+    s: {
+        id: 's',
+        size: 3,
+        blocks: [0x06C0, 0x8C40, 0x6C00, 0x4620],
+        color: '#55ff55'
+    },
+    t: {
+        id: 't',
+        size: 3,
+        blocks: [0x0E40, 0x4C40, 0x4E00, 0x4640],
+        color: '#aa0000'
+    },
+    z: {
+        id: 'z',
+        size: 3,
+        blocks: [0x0C60, 0x4C80, 0xC600, 0x2640],
+        color: '#ff5555'
+    },
+    f: {
+        id: 'f',
+        size: 4,
+        blocks: [0x5F50, 0x2727, 0x0AFA, 0xE4E4],
+        color: '#ffffff'
+    }
 };
 
 // FISHTRIS Actions
@@ -189,9 +191,9 @@ var fishtrisActions = [{
         gnu: 15,
         action: function() {
             fishtris_pieces.push({
-                type: i,
+                type: stone.i,
                 dir: DIR.UP,
-                x: Math.round((nx - i.size) / 2),
+                x: Math.round((nx - stone.i.size) / 2),
                 y: 0
             });
         },
@@ -232,9 +234,9 @@ var fishtrisActions = [{
         action: function() {},
         op_action: function() {
             fishtris_pieces.push({
-                type: i,
+                type: stone.i,
                 dir: DIR.UP,
-                x: Math.round((nx - i.size) / 2),
+                x: Math.round((nx - stone.i.size) / 2),
                 y: 0
             });
         }
@@ -257,9 +259,9 @@ var fishtrisActions = [{
         action: function() {},
         op_action: function() {
             fishtris_pieces.push({
-                type: f,
+                type: stone.f,
                 dir: DIR.UP,
-                x: Math.round((nx - f.size) / 2),
+                x: Math.round((nx - stone.f.size) / 2),
                 y: 0
             });
         }
@@ -371,7 +373,7 @@ var fishtris_pieces = [];
 
 function randomPiece() {
     if (pieces.length == 0)
-        pieces = [i, i, i, i, j, j, j, j, l, l, l, l, o, o, o, o, s, s, s, s, t, t, t, t, z, z, z, z];
+        pieces = [stone.i, stone.i, stone.i, stone.i, stone.j, stone.j, stone.j, stone.j, stone.l, stone.l, stone.l, stone.l, stone.o, stone.o, stone.o, stone.o, stone.s, stone.s, stone.s, stone.s, stone.t, stone.t, stone.t, stone.t, stone.z, stone.z, stone.z, stone.z];
     var type = pieces.splice(random(0, pieces.length - 1), 1)[0];
     return {
         type: type,
