@@ -55,5 +55,5 @@ Authors
 License
 =======
 
-not sure about this, the original fork is under MIT License.
+MIT License.
 
