@@ -538,15 +538,15 @@ function getBlock(x, y) {
     return (blocks && blocks[x] ? blocks[x][y] : null);
 };
 
-function setBlock(x, y, type) {
+function setBlock(x, y, color) {
     blocks[x] = blocks[x] || [];
-    blocks[x][y] = type;
+    blocks[x][y] = color;
     invalidate();
 };
 
-function setOpBlock(x, y, type) {
+function setOpBlock(x, y, color) {
     op_blocks[x] = op_blocks[x] || [];
-    op_blocks[x][y] = type;
+    op_blocks[x][y] = color;
     invalidateOp();
 };
 
@@ -691,7 +691,7 @@ function drop() {
 
 function dropPiece() {
     eachblock(current.type, current.x, current.y, current.dir, function(x, y) {
-        setBlock(x, y, current.type);
+        setBlock(x, y, current.type.color);
     });
 };
 
@@ -797,8 +797,8 @@ function drawCourt() {
         var x, y, block;
         for (y = 0; y < ny; y++) {
             for (x = 0; x < nx; x++) {
-                if (block = getBlock(x, y))
-                    drawBlock(ctx, x, y, block.color);
+                if (color = getBlock(x, y))
+                    drawBlock(ctx, x, y, color);
             }
         }
         ctx.strokeRect(0, 0, nx * dx - 1, ny * dy - 1); // court boundary
@@ -814,8 +814,8 @@ function drawOpCourt() {
         var x, y, block;
         for (y = 0; y < ny; y++) {
             for (x = 0; x < nx; x++) {
-                if (block = getOpBlock(x, y))
-                    drawBlock(opctx, x, y, block.color);
+                if (color = getOpBlock(x, y))
+                    drawBlock(opctx, x, y, color);
             }
         }
         opctx.strokeRect(0, 0, nx * dx - 1, ny * dy - 1); // court boundary
@@ -900,7 +900,7 @@ socket.on('op_gnus', function(data) {
 socket.on('op_down', function(data) {
     eachblock(data.type, data.x, data.y, data.dir, function(x, y) {
         console.log('setBlock(', x, y, data.type.id);
-        setOpBlock(x, y, data.type);
+        setOpBlock(x, y, data.type.color);
         drawOpCourt();
         removeOpLines();
     });
