@@ -41,6 +41,86 @@ if (!window.requestAnimationFrame) { // http://paulirish.com/2011/requestanimati
             window.setTimeout(callback, 1000 / 60);
     }
 }
+//-------------------------------------------------------------------------
+// Class Block
+//-------------------------------------------------------------------------
+var Block = function() {
+    this.block = [];
+    this.court = false;
+};
+
+
+// check if a piece can fit into a position in the grid
+
+Block.prototype.occupied = function(type, x, y, dir) {
+    var result = false;
+    var self = this;
+    eachblock(type, x, y, dir, function(x, y) {
+        if ((x < 0) || (x >= nx) || (y < 0) || (y >= ny) || self.get(x, y))
+            result = true;
+    });
+    return result;
+};
+
+Block.prototype.unoccupied = function(type, x, y, dir) {
+    return !this.occupied(type, x, y, dir);
+};
+
+Block.prototype.get = function(x, y) {
+    var rtn = (this.block && this.block[x] ? this.block[x][y] : null);
+    return rtn
+};
+
+Block.prototype.set = function(x, y, color) {
+    this.block[x] = this.block[x] || [];
+    this.block[x][y] = color;
+    this.invalidate();
+};
+
+
+Block.prototype.clear = function() {
+    this.block = [];
+    this.invalidate();
+}
+
+Block.prototype.removeLines = function() {
+    var x, y, complete, n = 0;
+    for (y = ny; y > 0; --y) {
+        complete = true;
+        for (x = 0; x < nx; ++x) {
+            if (!this.get(x, y))
+                complete = false;
+        }
+        if (complete) {
+            this.removeLine(y);
+            console.log("Remove line", y);
+            y = y + 1; // recheck same line
+            n++;
+        }
+    }
+    return n;
+};
+
+Block.prototype.removeLine = function(n) {
+    var x, y;
+    for (y = n; y >= 0; --y) {
+        for (x = 0; x < nx; ++x)
+            this.set(x, y, (y == 0) ? null : this.get(x, y - 1));
+    }
+};
+
+
+Block.prototype.invalidate = function() {
+    this.court = true;
+}
+
+Block.prototype.setValid = function() {
+    this.court = false;
+}
+
+Block.prototype.isInValid = function() {
+    return this.court;
+}
 
 //-------------------------------------------------------------------------
 // game constants
@@ -108,10 +188,6 @@ var dx, dy, // pixel size of a single tetris block
     gnus, // number of gnus
     step; // how long before current piece drops by 1 row
 
-var Block = function() {
-    this.block = [];
-    this.court = false;
-};
 
 my_blocks = new Block();
 
@@ -360,22 +436,6 @@ function eachblock(type, x, y, dir, fn) {
 };
 
 
-//-----------------------------------------------------
-// check if a piece can fit into a position in the grid
-//-----------------------------------------------------
-Block.prototype.occupied = function(type, x, y, dir) {
-    var result = false;
-    var self = this;
-    eachblock(type, x, y, dir, function(x, y) {
-        if ((x < 0) || (x >= nx) || (y < 0) || (y >= ny) || self.get(x, y))
-            result = true;
-    });
-    return result;
-};
-
-Block.prototype.unoccupied = function(type, x, y, dir) {
-    return !this.occupied(type, x, y, dir);
-};
 
 //-----------------------------------------
 // start with 4 instances of each piece and
@@ -547,22 +607,6 @@ function clearGnus() {
     setGnus(0);
 };
 
-Block.prototype.get = function(x, y) {
-    var rtn = (this.block && this.block[x] ? this.block[x][y] : null);
-    return rtn
-};
-
-Block.prototype.set = function(x, y, color) {
-    this.block[x] = this.block[x] || [];
-    this.block[x][y] = color;
-    this.invalidate();
-};
-
-
-Block.prototype.clear = function() {
-    this.block = [];
-    this.invalidate();
-}
 
 
 function clearActions() {
@@ -701,49 +745,12 @@ function dropPiece() {
     });
 };
 
-Block.prototype.removeLines = function() {
-    var x, y, complete, n = 0;
-    for (y = ny; y > 0; --y) {
-        complete = true;
-        for (x = 0; x < nx; ++x) {
-            if (!this.get(x, y))
-                complete = false;
-        }
-        if (complete) {
-            this.removeLine(y);
-            console.log("Remove line", y);
-            y = y + 1; // recheck same line
-            n++;
-        }
-    }
-    return n;
-};
-
-Block.prototype.removeLine = function(n) {
-    var x, y;
-    for (y = n; y >= 0; --y) {
-        for (x = 0; x < nx; ++x)
-            this.set(x, y, (y == 0) ? null : this.get(x, y - 1));
-    }
-};
 
 //-------------------------------------------------------------------------
 // RENDERING
 //-------------------------------------------------------------------------
 
 var invalid = {};
-
-Block.prototype.invalidate = function() {
-    this.court = true;
-}
-
-Block.prototype.setValid = function() {
-    this.court = false;
-}
-
-Block.prototype.isInValid = function() {
-    return this.court;
-}
 
 
 function invalidateNext() {
