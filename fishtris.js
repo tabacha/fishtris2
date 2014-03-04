@@ -95,7 +95,7 @@ var socket = io.connect('http://' + host + ':' + port);
 
 var speedRows = 0;
 var dx, dy, // pixel size of a single tetris block
-    blocks, // 2 dimensional array (nx*ny) representing tetris court - either empty block or occupied by a 'piece'
+    my_blocks, // 2 dimensional array (nx*ny) representing tetris court - either empty block or occupied by a 'piece'
     op_blocks,
     actions, // queue of user actions (inputs)
     playing, // true|false - game is in progress
@@ -107,6 +107,15 @@ var dx, dy, // pixel size of a single tetris block
     rows, // number of completed rows in the current game
     gnus, // number of gnus
     step; // how long before current piece drops by 1 row
+
+var Block = function() {
+    this.block = [];
+    this.court = false;
+};
+
+my_blocks = new Block();
+
+op_blocks = new Block();
 
 //-------------------------------------------------------------------------
 // tetris pieces
@@ -181,10 +190,10 @@ var fishtrisActions = [{
         id: "Ringel",
         gnu: 12,
         action: function() {
-            removeLine(ny);
+            my_blocks.removeLine(ny);
         },
         op_action: function() {
-            removeOpLine(ny);
+            op_blocks.removeLine(ny);
         }
     }, {
         id: "Wonne",
@@ -203,12 +212,14 @@ var fishtrisActions = [{
         id: "Riegel",
         gnu: 20,
         action: function() {
-            removeLine(ny);
-            removeLine(ny);
-            removeLine(ny);
+            my_blocks.removeLine(ny);
+            my_blocks.removeLine(ny);
+            my_blocks.removeLine(ny);
         },
         op_action: function() {
-            removeOpLine(ny);
+	    op_blocks.removeLine(ny);
+	    op_blocks.removeLine(ny);
+	    op_blocks.removeLine(ny);
         }
     }, {
         id: "Schneck",
@@ -223,10 +234,10 @@ var fishtrisActions = [{
         id: "Gnubaby",
         gnu: 3,
         action: function() {
-            removeOpLine(ny);
+            op_blocks.removeLine(ny);
         },
         op_action: function() {
-            removeLine(ny);
+            my_blocks.removeLine(ny);
         }
     }, {
         id: "Tonne",
@@ -244,14 +255,14 @@ var fishtrisActions = [{
         id: "Blubber",
         gnu: 8,
         action: function() {
-            removeOpLine(ny);
-            removeOpLine(ny);
-            removeOpLine(ny);
+            op_blocks.removeLine(ny);
+            op_blocks.removeLine(ny);
+            op_blocks.removeLine(ny);
         },
         op_action: function() {
-            removeLine(ny);
-            removeLine(ny);
-            removeLine(ny);
+            my_blocks.removeLine(ny);
+            my_blocks.removeLine(ny);
+            my_blocks.removeLine(ny);
         }
     }, {
         id: "BigFISH",
@@ -272,10 +283,10 @@ var fishtrisActions = [{
             var x, y;
             for (y = 0; y < ny; ++y) {
                 for (x = 0; x < nx; ++x) {
-                    if (getOpBlock(x, y) != null) {
+                    if (op_blocks.get(x, y) != null) {
                         var tmp = (x + y) % 3;
                         if (tmp == 1) {
-                            setOpBlock(x, y, null);
+                            op_blocks.set(x, y, null);
                         }
                     }
                 }
@@ -286,10 +297,10 @@ var fishtrisActions = [{
             var x, y;
             for (y = 0; y < ny; ++y) {
                 for (x = 0; x < nx; ++x) {
-                    if (getBlock(x, y) != null) {
+                    if (my_blocks.get(x, y) != null) {
                         var tmp = (x + y) % 3;
                         if (tmp == 1) {
-                            setBlock(x, y, null);
+                            my_blocks.set(x, y, null);
                         }
                     }
                 }
@@ -348,20 +359,22 @@ function eachblock(type, x, y, dir, fn) {
     }
 };
 
+
 //-----------------------------------------------------
 // check if a piece can fit into a position in the grid
 //-----------------------------------------------------
-function occupied(type, x, y, dir) {
-    var result = false
+Block.prototype.occupied = function (type, x, y, dir) {
+    var result = false;
+    var self = this;
     eachblock(type, x, y, dir, function(x, y) {
-        if ((x < 0) || (x >= nx) || (y < 0) || (y >= ny) || getBlock(x, y))
+        if ((x < 0) || (x >= nx) || (y < 0) || (y >= ny) || self.get(x, y))
             result = true;
     });
     return result;
 };
 
-function unoccupied(type, x, y, dir) {
-    return !occupied(type, x, y, dir);
+Block.prototype.unoccupied = function (type, x, y, dir) {
+    return !this.occupied(type, x, y, dir);
 };
 
 //-----------------------------------------
@@ -425,7 +438,7 @@ function resize(event) {
     opucanvas.height = opucanvas.clientHeight;
     dx = canvas.width / nx; // pixel size of a single tetris block
     dy = canvas.height / ny; // (ditto)
-    invalidate();
+    my_blocks.invalidate();
     invalidateNext();
 };
 
@@ -534,35 +547,23 @@ function clearGnus() {
     setGnus(0);
 };
 
-function getBlock(x, y) {
-    return (blocks && blocks[x] ? blocks[x][y] : null);
+Block.prototype.get = function (x, y) {
+    var rtn=(this.block && this.block[x] ? this.block[x][y] : null);
+    return rtn
 };
 
-function setBlock(x, y, color) {
-    blocks[x] = blocks[x] || [];
-    blocks[x][y] = color;
-    invalidate();
+Block.prototype.set = function (x, y, color) {
+    this.block[x] = this.block[x] || [];
+    this.block[x][y] = color;
+    this.invalidate();
 };
 
-function setOpBlock(x, y, color) {
-    op_blocks[x] = op_blocks[x] || [];
-    op_blocks[x][y] = color;
-    invalidateOp();
-};
 
-function getOpBlock(x, y) {
-    return (op_blocks && op_blocks[x] ? op_blocks[x][y] : null);
-};
-
-function clearBlocks() {
-    blocks = [];
-    invalidate();
+Block.prototype.clear = function () {
+    this.block = [];
+    this.invalidate();
 }
 
-function clearOpBlocks() {
-    op_blocks = [];
-    invalidate();
-}
 
 function clearActions() {
     actions = [];
@@ -570,7 +571,7 @@ function clearActions() {
 
 function setCurrentPiece(piece) {
     current = piece || randomPiece();
-    invalidate();
+    my_blocks.invalidate();
 };
 
 function setNextPiece(piece) {
@@ -582,8 +583,8 @@ function reset() {
     dt = 0;
     speedRows = 0;
     clearActions();
-    clearBlocks();
-    clearOpBlocks();
+    my_blocks = new Block();
+    op_blocks = new Block();
     clearRows();
     clearGnus();
     clearScore();
@@ -637,12 +638,12 @@ function move(dir) {
             y = y + 1;
             break;
     }
-    if (unoccupied(current.type, x, y, current.dir)) {
+    if (my_blocks.unoccupied(current.type, x, y, current.dir)) {
         current.x = x;
         current.y = y;
-        invalidate();
+        my_blocks.invalidate();
         if (dropall) {
-            while (unoccupied(current.type, x, y, current.dir)) {
+            while (my_blocks.unoccupied(current.type, x, y, current.dir)) {
                 y = y + 1;
                 current.y = y;
             }
@@ -659,9 +660,9 @@ function move(dir) {
 
 function rotate(dir) {
     var newdir = (current.dir == DIR.MAX ? DIR.MIN : current.dir + 1);
-    if (unoccupied(current.type, current.x, current.y, newdir)) {
+    if (my_blocks.unoccupied(current.type, current.x, current.y, newdir)) {
         current.dir = newdir;
-        invalidate();
+        my_blocks.invalidate();
     }
 };
 
@@ -675,7 +676,12 @@ function drop() {
             dir: current.dir
         });
         dropPiece();
-        removeLines();
+        var n=my_blocks.removeLines();
+	if (n > 0) {
+            addRows(n);
+            addGnus(n);
+            addScore(100 * Math.pow(2, n - 1)); // 1: 100, 2: 200, 3: 400, 4: 800
+	}
         if (fishtris_pieces.length == 0) {
             setCurrentPiece(next);
             setNextPiece(randomPiece());
@@ -683,7 +689,7 @@ function drop() {
             setCurrentPiece(fishtris_pieces.pop());
         }
         clearActions();
-        if (occupied(current.type, current.x, current.y, current.dir)) {
+        if (my_blocks.occupied(current.type, current.x, current.y, current.dir)) {
             lose();
         }
     }
@@ -691,61 +697,35 @@ function drop() {
 
 function dropPiece() {
     eachblock(current.type, current.x, current.y, current.dir, function(x, y) {
-        setBlock(x, y, current.type.color);
+        my_blocks.set(x, y, current.type.color);
     });
 };
 
-function removeLines() {
+Block.prototype.removeLines = function() {
     var x, y, complete, n = 0;
     for (y = ny; y > 0; --y) {
         complete = true;
         for (x = 0; x < nx; ++x) {
-            if (!getBlock(x, y))
+            if (!this.get(x, y))
                 complete = false;
         }
         if (complete) {
-            removeLine(y);
+            this.removeLine(y);
             console.log("Remove line", y);
             y = y + 1; // recheck same line
             n++;
         }
     }
-    if (n > 0) {
-        addRows(n);
-        addGnus(n);
-        addScore(100 * Math.pow(2, n - 1)); // 1: 100, 2: 200, 3: 400, 4: 800
-    }
+    return n;
 };
 
-function removeLine(n) {
+Block.prototype.removeLine = function (n) {
     var x, y;
     for (y = n; y >= 0; --y) {
         for (x = 0; x < nx; ++x)
-            setBlock(x, y, (y == 0) ? null : getBlock(x, y - 1));
+            this.set(x, y, (y == 0) ? null : this.get(x, y - 1));
     }
 };
-
-function removeOpLine(n) {
-    var x, y;
-    for (y = n; y >= 0; --y) {
-        for (x = 0; x < nx; ++x)
-            setOpBlock(x, y, (y == 0) ? null : getOpBlock(x, y - 1));
-    }
-};
-
-function removeOpLines() {
-    var x, y, complete = 0;
-    for (y = ny; y > 0; --y) {
-        complete = true;
-        for (x = 0; x < nx; ++x) {
-            if (!getOpBlock(x, y))
-                complete = false;
-        }
-        if (complete) {
-            removeOpLine(y);
-        }
-    }
-}
 
 //-------------------------------------------------------------------------
 // RENDERING
@@ -753,13 +733,18 @@ function removeOpLines() {
 
 var invalid = {};
 
-function invalidate() {
-    invalid.court = true;
+Block.prototype.invalidate = function () {
+    this.court = true;
 }
 
-function invalidateOp() {
-    invalid.op_court = true;
+Block.prototype.setValid = function () {
+    this.court = false;
 }
+
+Block.prototype.isInValid = function () {
+    return this.court;
+}
+
 
 function invalidateNext() {
     invalid.next = true;
@@ -790,36 +775,36 @@ function draw() {
 };
 
 function drawCourt() {
-    if (invalid.court) {
+    if (my_blocks.isInValid()) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         if (playing)
             drawPiece(ctx, current.type, current.x, current.y, current.dir);
         var x, y, block;
         for (y = 0; y < ny; y++) {
             for (x = 0; x < nx; x++) {
-                if (color = getBlock(x, y))
+                if (color = my_blocks.get(x, y))
                     drawBlock(ctx, x, y, color);
             }
         }
         ctx.strokeRect(0, 0, nx * dx - 1, ny * dy - 1); // court boundary
-        invalid.court = false;
+        my_blocks.setValid();
     }
 };
 
 function drawOpCourt() {
-    if (invalid.op_court) {
+    if (op_blocks.isInValid()) {
         opctx.clearRect(0, 0, canvas.width, canvas.height);
         if (playing)
             drawPiece(opctx, opcurrent.type, opcurrent.x, opcurrent.y, opcurrent.dir);
         var x, y, block;
         for (y = 0; y < ny; y++) {
             for (x = 0; x < nx; x++) {
-                if (color = getOpBlock(x, y))
+                if (color = op_blocks.get(x, y))
                     drawBlock(opctx, x, y, color);
             }
         }
         opctx.strokeRect(0, 0, nx * dx - 1, ny * dy - 1); // court boundary
-        invalid.op_court = false;
+        op_blocks.setValid();
     }
 };
 
@@ -900,15 +885,15 @@ socket.on('op_gnus', function(data) {
 socket.on('op_down', function(data) {
     eachblock(data.type, data.x, data.y, data.dir, function(x, y) {
         console.log('setBlock(', x, y, data.type.id);
-        setOpBlock(x, y, data.type.color);
+        op_blocks.set(x, y, data.type.color);
         drawOpCourt();
-        removeOpLines();
+        op_blocks.removeLines();
     });
 });
 
 socket.on('op_cur', function(data) {
     opcurrent = data;
-    invalidateOp();
+    op_blocks.invalidate();
     drawOpCourt();
 
 });
