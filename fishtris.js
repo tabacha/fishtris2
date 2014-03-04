@@ -217,9 +217,9 @@ var fishtrisActions = [{
             my_blocks.removeLine(ny);
         },
         op_action: function() {
-	    op_blocks.removeLine(ny);
-	    op_blocks.removeLine(ny);
-	    op_blocks.removeLine(ny);
+            op_blocks.removeLine(ny);
+            op_blocks.removeLine(ny);
+            op_blocks.removeLine(ny);
         }
     }, {
         id: "Schneck",
@@ -363,7 +363,7 @@ function eachblock(type, x, y, dir, fn) {
 //-----------------------------------------------------
 // check if a piece can fit into a position in the grid
 //-----------------------------------------------------
-Block.prototype.occupied = function (type, x, y, dir) {
+Block.prototype.occupied = function(type, x, y, dir) {
     var result = false;
     var self = this;
     eachblock(type, x, y, dir, function(x, y) {
@@ -373,7 +373,7 @@ Block.prototype.occupied = function (type, x, y, dir) {
     return result;
 };
 
-Block.prototype.unoccupied = function (type, x, y, dir) {
+Block.prototype.unoccupied = function(type, x, y, dir) {
     return !this.occupied(type, x, y, dir);
 };
 
@@ -547,19 +547,19 @@ function clearGnus() {
     setGnus(0);
 };
 
-Block.prototype.get = function (x, y) {
-    var rtn=(this.block && this.block[x] ? this.block[x][y] : null);
+Block.prototype.get = function(x, y) {
+    var rtn = (this.block && this.block[x] ? this.block[x][y] : null);
     return rtn
 };
 
-Block.prototype.set = function (x, y, color) {
+Block.prototype.set = function(x, y, color) {
     this.block[x] = this.block[x] || [];
     this.block[x][y] = color;
     this.invalidate();
 };
 
 
-Block.prototype.clear = function () {
+Block.prototype.clear = function() {
     this.block = [];
     this.invalidate();
 }
@@ -676,12 +676,12 @@ function drop() {
             dir: current.dir
         });
         dropPiece();
-        var n=my_blocks.removeLines();
-	if (n > 0) {
+        var n = my_blocks.removeLines();
+        if (n > 0) {
             addRows(n);
             addGnus(n);
             addScore(100 * Math.pow(2, n - 1)); // 1: 100, 2: 200, 3: 400, 4: 800
-	}
+        }
         if (fishtris_pieces.length == 0) {
             setCurrentPiece(next);
             setNextPiece(randomPiece());
@@ -719,7 +719,7 @@ Block.prototype.removeLines = function() {
     return n;
 };
 
-Block.prototype.removeLine = function (n) {
+Block.prototype.removeLine = function(n) {
     var x, y;
     for (y = n; y >= 0; --y) {
         for (x = 0; x < nx; ++x)
@@ -733,15 +733,15 @@ Block.prototype.removeLine = function (n) {
 
 var invalid = {};
 
-Block.prototype.invalidate = function () {
+Block.prototype.invalidate = function() {
     this.court = true;
 }
 
-Block.prototype.setValid = function () {
+Block.prototype.setValid = function() {
     this.court = false;
 }
 
-Block.prototype.isInValid = function () {
+Block.prototype.isInValid = function() {
     return this.court;
 }
 
