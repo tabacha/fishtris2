@@ -1,10 +1,14 @@
 <!DOCTYPE html> 
 <html>
 <head>
-  <title>Javascript Tetris</title>
+  <title>Fishtris Game</title>
   <style>
-    body      { font-family: Helvetica, sans-serif; }
-    #tetris   { margin: 1em auto; padding: 1em; border: 4px solid black; border-radius: 10px; background-color: #F8F8F8; }
+    body      { font-family: Helvetica, sans-serif;   padding-top: 30px; }
+    #tetris   { padding: 1em;   }
+    .starter-template {
+    padding: 20px 5px;
+    text-align: center;
+    }
     #stats    { display: inline-block; vertical-align: top; }
     .game   { display: inline-block; vertical-align: top; background: #000000; box-shadow: 10px 10px 10px #999; border: 2px solid #333; margin: 15px }
     .menu     { display: inline-block; vertical-align: top; position: relative; }
@@ -16,16 +20,42 @@
     .score    { color: red; font-weight: bold; vertical-align: middle; }
     .rows     { color: blue; font-weight: bold; vertical-align: middle; }
     #stats    { position: absolute; bottom: 0em; right: 1em; }
-    @media screen and (min-width:   0px) and (min-height:   0px)  { #tetris { font-size: 0.75em; width: 425px; } .menu { width: 90px; height: 200px; } .upcoming { width:  50px; height:  50px; } .game { width: 80px; height: 200px; } } /* 10px chunks */
-    @media screen and (min-width: 630px) and (min-height: 400px)  { #tetris { font-size: 1.00em; width: 620px; } .menu { width: 145px; height: 300px; } .upcoming { width:  75px; height:  75px; } .game { width: 120px; height: 300px; } } /* 15px chunks */
-    @media screen and (min-width: 800px) and (min-height: 520px)  { #tetris { font-size: 1.25em; width: 790px; } .menu { width: 190px; height: 400px; } .upcoming { width: 100px; height: 100px; } .game { width: 160px; height: 400px; } } /* 20px chunks */
-    @media screen and (min-width: 1000px) and (min-height: 620px)  { #tetris { font-size: 1.50em; width: 990px; } .menu { width: 240px; height: 500px; } .upcoming { width: 125px; height: 125px; } .game { width: 200px; height: 500px; } } /* 25px chunks */
-    @media screen and (min-width: 1090px) and (min-height: 720px)  { #tetris { font-size: 1.75em; width: 1080px; } .menu { width: 230px; height: 600px; } .upcoming { width: 150px; height: 150px; } .game { width: 240px; height: 600px; } } /* 30px chunks */
-    @media screen and (min-width: 1120px) and (min-height: 840px)  { #tetris { font-size: 2.00em; width: 1120px; } .menu { width: 230px; height: 700px; } .upcoming { width: 175px; height: 175px; } .game { width: 280px; height: 700px; } } /* 35px chunks */
+    @media screen and (min-width:   0px) and (min-height:   0px)  { #tetris { font-size: 0.75em;  } .menu { width: 90px; height: 200px; } .upcoming { width:  50px; height:  50px; } .game { width: 80px; height: 200px; } } /* 10px chunks */
+    @media screen and (min-width: 630px) and (min-height: 512px)  { #tetris { font-size: 1.00em;  } .menu { width: 145px; height: 300px; } .upcoming { width:  75px; height:  75px; } .game { width: 120px; height: 300px; } } /* 15px chunks */
+    @media screen and (min-width: 800px) and (min-height: 550px)  { #tetris { font-size: 1.25em;  } .menu { width: 190px; height: 400px; } .upcoming { width: 100px; height: 100px; } .game { width: 160px; height: 400px; } } /* 20px chunks */
+    @media screen and (min-width: 1000px) and (min-height: 640px)  { #tetris { font-size: 1.50em;  } .menu { width: 240px; height: 500px; } .upcoming { width: 125px; height: 125px; } .game { width: 200px; height: 500px; } } /* 25px chunks */
+    @media screen and (min-width: 1090px) and (min-height: 800px)  { #tetris { font-size: 1.75em;  } .menu { width: 230px; height: 600px; } .upcoming { width: 150px; height: 150px; } .game { width: 240px; height: 600px; } } /* 30px chunks */
+    @media screen and (min-width: 1120px) and (min-height: 840px)  { #tetris { font-size: 2.00em;  } .menu { width: 230px; height: 700px; } .upcoming { width: 175px; height: 175px; } .game { width: 280px; height: 700px; } } /* 35px chunks */
   </style>
+ <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+
 </head> 
 
 <body> 
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+	    <a class="navbar-brand" href="#">FISHTRIS</a>
+          </button>
+        </div>
+        <div class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"> <a href="#">Game</a></li>
+<!--            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li> -->
+            <li><a href="https://github.com/tabacha/fishtris2">Sources on Github</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+
+
+   <div class="starter-template">
   <div id="startinfo"> Please wait for a 2nd  player to join</div>
   <div id="tetris">
     <div id="menu" class="menu">
@@ -45,7 +75,6 @@
     <canvas id="canvasop" class="game">
     </canvas>
     <div id="oponent" class="menu">
-      <center><b>F I S H T R I S</b></center>
       <p><canvas id="upcomingop" class="upcoming"></canvas></p>
       <p>score <span id="scoreop" class="score">00000</span></p>
       <p>rows <span id="rowsop" class="rows">0</span></p>
@@ -59,11 +88,18 @@
     </div>
 
   </div>
+Idee: Holger Tewis, Sven Anders, Herzlichen Gl&uuml;ckwunsch zum Geburtstag!
+Impressum: Sven Anders, Neehusentr. 11a, 21147 Hamburg <a href="https://github.com/tabacha/fishtris2">github.com/tabacha/fishtris2</a>
+</div>
 
   <script src="MersenneTwister.js"> </script>
   <script src="socket.io/socket.io.js"></script>
   <script src="fishtris.js"></script>
-Idee: Holger Tewis, Sven Anders, Herzlichen Gl&uuml;ckwunsch zum Geburtstag!
-Impressum: Sven Anders, Neehusentr. 11a, 21147 Hamburg <a href="https://github.com/tabacha/fishtris2">github.com/tabacha/fishtris2</a>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 </body> 
 </html>
