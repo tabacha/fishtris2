@@ -14,25 +14,25 @@ function handler(req, res) {
         filename = 'index.html';
     else {
         filename = req.url.substring(1);
-	var teststr = filename;
-	teststr = teststr.replace(/\w/g,'');
-        teststr = teststr.replace(/\./g,'');	
-	teststr = teststr.replace(/\-/g,'');
-	teststr = teststr.replace(/_/g,'');
-	if (teststr != '') {
-           filename = 'error.html';
+        var teststr = filename;
+        teststr = teststr.replace(/\w/g, '');
+        teststr = teststr.replace(/\./g, '');
+        teststr = teststr.replace(/\-/g, '');
+        teststr = teststr.replace(/_/g, '');
+        if (teststr != '') {
+            filename = 'error.html';
         }
-    } 
-    if (filename.search(/\.js$/)>-1) {
-	contenttype = 'application/javascript';
+    }
+    if (filename.search(/\.js$/) > -1) {
+        contenttype = 'application/javascript';
     };
-    if (filename.search(/\.css$/)>-1) {
-	contenttype = 'text/css';
+    if (filename.search(/\.css$/) > -1) {
+        contenttype = 'text/css';
     };
-    if (filename.search(/\.EXE$/)>-1) {
-	contenttype = 'application/octet-stream';
+    if (filename.search(/\.EXE$/) > -1) {
+        contenttype = 'application/octet-stream';
     };
-	
+
     fs.readFile(__dirname + '/' + filename,
         function(err, data) {
             if (err) {
@@ -40,7 +40,9 @@ function handler(req, res) {
                 return res.end('Error loading ' + filename);
             }
 
-            res.writeHead(200,{ 'Content-Type': contenttype });
+            res.writeHead(200, {
+                'Content-Type': contenttype
+            });
             res.end(data);
         });
 }
