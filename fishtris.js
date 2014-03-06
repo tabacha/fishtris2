@@ -160,6 +160,8 @@ var KEY = {
     nu = 5, // width/height of upcoming preview (in blocks)
     port = window.location.port,
     host = window.location.host;
+    host = host.replace(/:\d*$/,'');
+
 if (port == "")
     port = "80"
 
