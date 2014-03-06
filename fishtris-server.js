@@ -9,6 +9,7 @@ var seed = Math.round(Math.random(0, 999999));
 function handler(req, res) {
     console.log(req.url);
     var filename = 'error.html';
+    var contenttype = 'text/html';
     if (req.url == '/')
         filename = 'index.html';
     else {
@@ -22,6 +23,16 @@ function handler(req, res) {
            filename = 'error.html';
         }
     } 
+    if (filename.search(/\.js$/)>-1) {
+	contenttype = 'application/javascript';
+    };
+    if (filename.search(/\.css$/)>-1) {
+	contenttype = 'text/css';
+    };
+    if (filename.search(/\.EXE$/)>-1) {
+	contenttype = 'application/octet-stream';
+    };
+	
     fs.readFile(__dirname + '/' + filename,
         function(err, data) {
             if (err) {
@@ -29,7 +40,7 @@ function handler(req, res) {
                 return res.end('Error loading ' + filename);
             }
 
-            res.writeHead(200);
+            res.writeHead(200,{ 'Content-Type': contenttype });
             res.end(data);
         });
 }
