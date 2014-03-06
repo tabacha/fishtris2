@@ -11,10 +11,17 @@ function handler(req, res) {
     var filename = 'error.html';
     if (req.url == '/')
         filename = 'index.html';
-    if (req.url == '/fishtris.js')
-        filename = 'fishtris.js';
-    if (req.url == '/MersenneTwister.js')
-        filename = 'MersenneTwister.js';
+    else {
+        filename = req.url.substring(1);
+	var teststr = filename;
+	teststr = teststr.replace(/\w/g,'');
+        teststr = teststr.replace(/\./g,'');	
+	teststr = teststr.replace(/\-/g,'');
+	teststr = teststr.replace(/_/g,'');
+	if (teststr != '') {
+           filename = 'error.html';
+        }
+    } 
     fs.readFile(__dirname + '/' + filename,
         function(err, data) {
             if (err) {
