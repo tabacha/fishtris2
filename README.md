@@ -52,6 +52,14 @@ Authors
 * Jake Gordon (original Tetris javascript game)
 * Sven Anders
 
+Development Documentation
+=========================
+
+Please have a look to 
+
+* The github wiki: https://github.com/tabacha/fishtris2/wiki
+* The github issues: https://github.com/tabacha/fishtris2/issues?state=open
+
 License
 =======
 
