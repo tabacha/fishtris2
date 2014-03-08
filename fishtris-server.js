@@ -29,6 +29,12 @@ function handler(req, res) {
     if (filename.search(/\.css$/) > -1) {
         contenttype = 'text/css';
     };
+    if (filename.search(/\.ico$/) > -1) {
+        contenttype = 'image/x-icon';
+    };
+    if (filename.search(/\.txt$/) > -1) {
+        contenttype = 'text/plain';
+    };
     if (filename.search(/\.EXE$/) > -1) {
         contenttype = 'application/octet-stream';
     };
