@@ -775,7 +775,7 @@ function draw() {
     ctx.save();
     ctx.lineWidth = 1;
     ctx.translate(0.5, 0.5); // for crisp 1px black lines
-    drawCourt();
+    drawCourt(my_blocks, ctx, current);
     drawNext();
     drawScore();
     drawRows();
@@ -783,20 +783,20 @@ function draw() {
     ctx.restore();
 };
 
-function drawCourt() {
-    if (my_blocks.isInValid()) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+function drawCourt(blocks, mctx, mcurrent) {
+    if (blocks.isInValid()) {
+        mctx.clearRect(0, 0, canvas.width, canvas.height);
         if (playing)
-            drawPiece(ctx, current.type, current.x, current.y, current.dir);
+            drawPiece(mctx, mcurrent.type, mcurrent.x, mcurrent.y, mcurrent.dir);
         var x, y;
         for (y = 0; y < ny; y++) {
             for (x = 0; x < nx; x++) {
-                if (color = my_blocks.get(x, y))
-                    drawBlock(ctx, x, y, color);
+                if (color = blocks.get(x, y))
+                    drawBlock(mctx, x, y, color);
             }
         }
-        ctx.strokeRect(0, 0, nx * dx - 1, ny * dy - 1); // court boundary
-        my_blocks.setValid();
+        mctx.strokeRect(0, 0, nx * dx - 1, ny * dy - 1); // court boundary
+        blocks.setValid();
     }
 };
 
@@ -895,16 +895,16 @@ socket.on('op_down', function(data) {
     eachblock(data.type, data.x, data.y, data.dir, function(x, y) {
         console.log('setBlock(', x, y, data.type.id);
         op_blocks.set(x, y, data.type.color);
-        drawOpCourt();
-        op_blocks.removeLines();
     });
+    op_blocks.removeLines();
+    op_blocks.invalidate();
+    drawCourt(op_blocks, opctx, opcurrent);
 });
 
 socket.on('op_cur', function(data) {
     opcurrent = data;
     op_blocks.invalidate();
-    drawOpCourt();
-
+    drawCourt(op_blocks, opctx, opcurrent);
 });
 
 socket.on('start', function(data) {
