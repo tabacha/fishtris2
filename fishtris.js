@@ -423,7 +423,7 @@ var dropall = false;
 // occupied block (x,y) for a given piece
 //------------------------------------------------
 function eachblock(type, x, y, dir, fn) {
-    var bit, result, row = 0,
+    var bit, row = 0,
         col = 0,
         blocks = type.blocks[dir];
     for (bit = 0x8000; bit > 0; bit = bit >> 1) {
@@ -788,7 +788,7 @@ function drawCourt() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         if (playing)
             drawPiece(ctx, current.type, current.x, current.y, current.dir);
-        var x, y, block;
+        var x, y;
         for (y = 0; y < ny; y++) {
             for (x = 0; x < nx; x++) {
                 if (color = my_blocks.get(x, y))
@@ -805,7 +805,7 @@ function drawOpCourt() {
         opctx.clearRect(0, 0, canvas.width, canvas.height);
         if (playing)
             drawPiece(opctx, opcurrent.type, opcurrent.x, opcurrent.y, opcurrent.dir);
-        var x, y, block;
+        var x, y;
         for (y = 0; y < ny; y++) {
             for (x = 0; x < nx; x++) {
                 if (color = op_blocks.get(x, y))
