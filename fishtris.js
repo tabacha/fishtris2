@@ -800,23 +800,6 @@ function drawCourt(blocks, mctx, mcurrent) {
     }
 };
 
-function drawOpCourt() {
-    if (op_blocks.isInValid()) {
-        opctx.clearRect(0, 0, canvas.width, canvas.height);
-        if (playing)
-            drawPiece(opctx, opcurrent.type, opcurrent.x, opcurrent.y, opcurrent.dir);
-        var x, y;
-        for (y = 0; y < ny; y++) {
-            for (x = 0; x < nx; x++) {
-                if (color = op_blocks.get(x, y))
-                    drawBlock(opctx, x, y, color);
-            }
-        }
-        opctx.strokeRect(0, 0, nx * dx - 1, ny * dy - 1); // court boundary
-        op_blocks.setValid();
-    }
-};
-
 function drawNext() {
     if (invalid.next) {
         socket.emit("next", next);
