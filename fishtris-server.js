@@ -2,6 +2,7 @@ var app = require('http').createServer(handler),
     io = require('socket.io').listen(app),
     player = 0,
     fs = require('fs');
+
 app.listen(8080);
 
 var seed = Math.round(Math.random(0, 999999));

@@ -188,6 +188,7 @@ var dx, dy, // pixel size of a single tetris block
     playing, // true|false - game is in progress
     dt, // time since starting this game
     current, // the current piece
+    opcurrent,
     next, // the next piece
     score, // the current score
     vscore, // the currently displayed score (it catches up to score in small chunks - like a spinning slot machine)
@@ -473,8 +474,9 @@ function run() {
 
     addEvents(); // attach keydown and resize events
 
+    var now, last;
     now = timestamp();
-    var last = timestamp();
+    last = now;
 
     function frame() {
         now = timestamp();
