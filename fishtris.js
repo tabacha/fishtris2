@@ -1,3 +1,7 @@
+'use strict';
+/* jshint -W097 */
+/* global window, console, MersenneTwister, document, io, requestAnimationFrame */
+
 //-------------------------------------------------------------------------
 // base helper methods
 //-------------------------------------------------------------------------

@@ -1,3 +1,6 @@
+'use strict';
+/* jshint node: true */
+
 var app = require('http').createServer(handler),
     io = require('socket.io').listen(app),
     player = 0,
