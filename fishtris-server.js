@@ -1,8 +1,8 @@
 var app = require('http').createServer(handler),
     io = require('socket.io').listen(app),
     player = 0,
-    fs = require('fs')
-    app.listen(8080);
+    fs = require('fs');
+app.listen(8080);
 
 var seed = Math.round(Math.random(0, 999999));
 
@@ -19,25 +19,25 @@ function handler(req, res) {
         teststr = teststr.replace(/\./g, '');
         teststr = teststr.replace(/\-/g, '');
         teststr = teststr.replace(/_/g, '');
-        if (teststr != '') {
+        if (teststr !== '') {
             filename = 'error.html';
         }
     }
     if (filename.search(/\.js$/) > -1) {
         contenttype = 'application/javascript';
-    };
+    }
     if (filename.search(/\.css$/) > -1) {
         contenttype = 'text/css';
-    };
+    }
     if (filename.search(/\.ico$/) > -1) {
         contenttype = 'image/x-icon';
-    };
+    }
     if (filename.search(/\.txt$/) > -1) {
         contenttype = 'text/plain';
-    };
+    }
     if (filename.search(/\.EXE$/) > -1) {
         contenttype = 'application/octet-stream';
-    };
+    }
 
     fs.readFile(__dirname + '/' + filename,
         function(err, data) {
@@ -66,7 +66,7 @@ io.sockets.on('connection', function(socket) {
         console.log('game ready');
         io.sockets. in ('room' + roomno).emit('game_ready', seed);
     }
-    player = player + 1
+    player = player + 1;
     socket.on('score', function(data) {
         socket.get('myroom', function(err, room) {
             console.log('score ', data, room);
