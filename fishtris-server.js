@@ -10,9 +10,9 @@ function handler(req, res) {
     console.log(req.url);
     var filename = 'error.html';
     var contenttype = 'text/html';
-    if (req.url == '/')
+    if (req.url == '/') {
         filename = 'index.html';
-    else {
+    } else {
         filename = req.url.substring(1);
         var teststr = filename;
         teststr = teststr.replace(/\w/g, '');

@@ -56,8 +56,9 @@ Block.prototype.occupied = function(type, x, y, dir) {
     var result = false;
     var self = this;
     eachblock(type, x, y, dir, function(x, y) {
-        if ((x < 0) || (x >= nx) || (y < 0) || (y >= ny) || self.get(x, y))
+        if ((x < 0) || (x >= nx) || (y < 0) || (y >= ny) || self.get(x, y)) {
             result = true;
+        }
     });
     return result;
 };
@@ -88,12 +89,13 @@ Block.prototype.removeLines = function() {
     for (y = ny; y > 0; --y) {
         complete = true;
         for (x = 0; x < nx; ++x) {
-            if (!this.get(x, y))
+            if (!this.get(x, y)) {
                 complete = false;
+            }
         }
         if (complete) {
             this.removeLine(y);
-            console.log("Remove line", y);
+            console.log('Remove line', y);
             y = y + 1; // recheck same line
             n++;
         }
@@ -104,8 +106,9 @@ Block.prototype.removeLines = function() {
 Block.prototype.removeLine = function(n) {
     var x, y;
     for (y = n; y >= 0; --y) {
-        for (x = 0; x < nx; ++x)
+        for (x = 0; x < nx; ++x) {
             this.set(x, y, (y === 0) ? null : this.get(x, y - 1));
+        }
     }
 };
 
@@ -163,14 +166,15 @@ var KEY = {
 
 host = host.replace(/:\d*$/, '');
 
-if (port === "")
-    port = "80";
-
-if (window.location.protocol == "file:") {
-    port = "8080";
-    host = "localhost";
+if (port === '') {
+    port = '80';
 }
-console.log("socket-url=" + host + ':' + port);
+
+if (window.location.protocol == 'file:') {
+    port = '8080';
+    host = 'localhost';
+}
+console.log('socket-url=' + host + ':' + port);
 //-------------------------------------------------------------------------
 // game variables (initialized during reset)
 //-------------------------------------------------------------------------
@@ -266,7 +270,7 @@ var stone = {
 // FISHTRIS Actions
 
 var fishtrisActions = [{
-        id: "Ringel",
+        id: 'Ringel',
         gnu: 12,
         action: function() {
             my_blocks.removeLine(ny);
@@ -275,7 +279,7 @@ var fishtrisActions = [{
             op_blocks.removeLine(ny);
         }
     }, {
-        id: "Wonne",
+        id: 'Wonne',
         gnu: 15,
         action: function() {
             fishtris_pieces.push({
@@ -288,7 +292,7 @@ var fishtrisActions = [{
         op_action: function() {}
 
     }, {
-        id: "Riegel",
+        id: 'Riegel',
         gnu: 20,
         action: function() {
             my_blocks.removeLine(ny);
@@ -301,7 +305,7 @@ var fishtrisActions = [{
             op_blocks.removeLine(ny);
         }
     }, {
-        id: "Schneck",
+        id: 'Schneck',
         gnu: 24,
         action: function() {
             speedRows = speedRows - 100;
@@ -310,7 +314,7 @@ var fishtrisActions = [{
         op_action: function() {}
 
     }, {
-        id: "Gnubaby",
+        id: 'Gnubaby',
         gnu: 3,
         action: function() {
             op_blocks.removeLine(ny);
@@ -319,7 +323,7 @@ var fishtrisActions = [{
             my_blocks.removeLine(ny);
         }
     }, {
-        id: "Tonne",
+        id: 'Tonne',
         gnu: 6,
         action: function() {},
         op_action: function() {
@@ -331,7 +335,7 @@ var fishtrisActions = [{
             });
         }
     }, {
-        id: "Blubber",
+        id: 'Blubber',
         gnu: 8,
         action: function() {
             op_blocks.removeLine(ny);
@@ -344,7 +348,7 @@ var fishtrisActions = [{
             my_blocks.removeLine(ny);
         }
     }, {
-        id: "BigFISH",
+        id: 'BigFISH',
         gnu: 22,
         action: function() {},
         op_action: function() {
@@ -356,7 +360,7 @@ var fishtrisActions = [{
             });
         }
     }, {
-        id: "Bohrer",
+        id: 'Bohrer',
         gnu: 26,
         action: function() {
             var x, y;
@@ -386,7 +390,7 @@ var fishtrisActions = [{
             }
         }
     }, {
-        id: "OberGNU",
+        id: 'OberGNU',
         gnu: 30,
         action: function() {},
         op_action: function() {
@@ -400,18 +404,18 @@ var fishtrisActions = [{
 function setGnuStatus() {
     fishtrisActions.forEach(function(action) {
         if (get(action.id) === null) {
-            console.log("Action '" + action.id + "' not found in html");
+            console.log('Action "' + action.id + '" not found in html');
         }
         if (gnus >= action.gnu) {
-            setClass(action.id, "action-active");
+            setClass(action.id, 'action-active');
             get(action.id).onclick = function() {
-                console.log("click" + action.id);
+                console.log('click' + action.id);
                 socket.emit('fishtris', action.id);
                 addGnus(0 - action.gnu);
                 action.action();
             };
         } else {
-            setClass(action.id, "action-disabled");
+            setClass(action.id, 'action-disabled');
             get(action.id).onclick = function() {};
 
         }
@@ -448,8 +452,9 @@ var pieces = [];
 var fishtris_pieces = [];
 
 function randomPiece() {
-    if (pieces.length === 0)
+    if (pieces.length === 0) {
         pieces = [stone.i, stone.i, stone.i, stone.i, stone.j, stone.j, stone.j, stone.j, stone.l, stone.l, stone.l, stone.l, stone.o, stone.o, stone.o, stone.o, stone.s, stone.s, stone.s, stone.s, stone.t, stone.t, stone.t, stone.t, stone.z, stone.z, stone.z, stone.z];
+    }
     var type = pieces.splice(random(0, pieces.length - 1), 1)[0];
     return {
         type: type,
@@ -536,8 +541,9 @@ function keydown(ev) {
         play();
         handled = true;
     }
-    if (handled)
+    if (handled) {
         ev.preventDefault(); // prevent arrow keys from scrolling the page (supported in IE9+ and all other browsers)
+    }
 }
 
 
@@ -569,12 +575,12 @@ function setVisualScore(n) {
 function setScore(n) {
     score = n;
     setVisualScore(n);
-    socket.emit("score", score);
+    socket.emit('score', score);
 }
 
 function addScore(n) {
     score = score + n;
-    socket.emit("score", score);
+    socket.emit('score', score);
 }
 
 function clearScore() {
@@ -589,7 +595,7 @@ function setRows(n) {
     rows = n;
     step = Math.max(speed.min, speed.start - (speed.decrement * (rows + speedRows)));
     invalidateRows();
-    socket.emit("rows", rows);
+    socket.emit('rows', rows);
 }
 
 function addRows(n) {
@@ -602,7 +608,7 @@ function addGnus(n) {
 
 function setGnus(n) {
     gnus = n;
-    socket.emit("gnus", gnus);
+    socket.emit('gnus', gnus);
     setGnuStatus();
     invalidateGnus();
 }
@@ -643,8 +649,9 @@ function reset() {
 
 function update(idt) {
     if (playing) {
-        if (vscore < score)
+        if (vscore < score) {
             setVisualScore(vscore + 1);
+        }
         handle(actions.shift());
         dt = dt + idt;
         if (dt > step) {
@@ -672,7 +679,7 @@ function handle(action) {
 }
 
 function move(dir) {
-    socket.emit("cur", current);
+    socket.emit('cur', current);
     var x = current.x,
         y = current.y;
     switch (dir) {
@@ -788,14 +795,16 @@ function draw() {
 function drawCourt(blocks, mctx, mcurrent) {
     if (blocks.isInValid()) {
         mctx.clearRect(0, 0, canvas.width, canvas.height);
-        if (playing)
+        if (playing) {
             drawPiece(mctx, mcurrent.type, mcurrent.x, mcurrent.y, mcurrent.dir);
+        }
         var x, y;
         for (y = 0; y < ny; y++) {
             for (x = 0; x < nx; x++) {
                 var color = blocks.get(x, y);
-                if (color)
+                if (color) {
                     drawBlock(mctx, x, y, color);
+                }
             }
         }
         mctx.strokeRect(0, 0, nx * dx - 1, ny * dy - 1); // court boundary
@@ -805,7 +814,7 @@ function drawCourt(blocks, mctx, mcurrent) {
 
 function drawNext() {
     if (invalid.next) {
-        socket.emit("next", next);
+        socket.emit('next', next);
         var padding = (nu - next.type.size) / 2; // half-arsed attempt at centering next piece display
         uctx.save();
         uctx.translate(0.5, 0.5);
@@ -820,7 +829,7 @@ function drawNext() {
 
 function drawScore() {
     if (invalid.score) {
-        html('score', ("00000" + Math.floor(vscore)).slice(-5));
+        html('score', ('00000' + Math.floor(vscore)).slice(-5));
         invalid.score = false;
     }
 }
@@ -868,7 +877,7 @@ socket.on('game_ready', function(seed) {
 });
 
 socket.on('op_score', function(data) {
-    html('scoreop', ("00000" + Math.floor(data)).slice(-5));
+    html('scoreop', ('00000' + Math.floor(data)).slice(-5));
 });
 socket.on('op_rows', function(data) {
     html('rowsop', data);
@@ -899,7 +908,7 @@ socket.on('start', function(data) {
     }
 });
 socket.on('op_next', function(next) {
-    console.log("op_next" + next.type.id);
+    console.log('op_next' + next.type.id);
     var padding = (nu - next.type.size) / 2; // half-arsed attempt at centering next piece display
     opuctx.save();
     opuctx.translate(0.5, 0.5);
@@ -911,7 +920,7 @@ socket.on('op_next', function(next) {
 });
 
 socket.on('op_fishtris', function(id) {
-    console.log("op_fishtris " + id);
+    console.log('op_fishtris ' + id);
     fishtrisActions.forEach(function(action) {
         if (action.id == id) {
             action.op_action();

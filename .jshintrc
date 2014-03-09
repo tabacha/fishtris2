@@ -1,0 +1,7 @@
+// http://www.jshint.com/docs/options/
+{
+  "curly": true,
+//  "unused": true,
+  "quotmark": "single"
+//  "strict": true
+}
