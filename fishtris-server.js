@@ -114,8 +114,10 @@ io.sockets.on('connection', function(socket) {
 
     });
     socket.on('start', function(data) {
+
         socket.get('myroom', function(err, room) {
-            socket.broadcast.to(room).emit('start', data);
+            console.log('start', room);
+            io.sockets. in (room).emit('start', data);
         });
 
     });

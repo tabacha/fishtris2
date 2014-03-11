@@ -32,9 +32,10 @@
 
    <div class="starter-template">
   <div id="startinfo"> Please wait for a 2nd  player to join</div>
+  <div id="looseinfo"><h1>You have lost.</h1> <a href="javascript:window.location.reload(false);">Start a new game</a>.</div>
   <div id="tetris">
     <div id="menu" class="menu">
-      <p id="start"><a href="javascript:play();">Press Space to Play.</a></p>
+      <p id="start"><a href="javascript:sendStartGame();">Press Space to Play.</a></p>
       <p><canvas id="upcoming" class="upcoming"></canvas></p>
       <p>score <span id="score" class="score">00000</span></p>
       <p>rows <span id="rows" class="rows">0</span></p>

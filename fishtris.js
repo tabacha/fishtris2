@@ -11,11 +11,16 @@ function get(id) {
     return document.getElementById(id);
 }
 
+function hideFull(id) {
+    get(id).style.display = 'none';
+}
+
 function hide(id) {
     get(id).style.visibility = 'hidden';
 }
 
 function show(id) {
+    get(id).style.display = 'block';
     get(id).style.visibility = null;
 }
 
@@ -544,7 +549,7 @@ function keydown(ev) {
                 break;
         }
     } else if (ev.keyCode == KEY.SPACE) {
-        play();
+        sendStartGame();
         handled = true;
     }
     if (handled) {
@@ -553,6 +558,9 @@ function keydown(ev) {
 }
 
 
+function sendStartGame() {
+    socket.emit('start', 1);
+}
 
 
 //-------------------------------------------------------------------------
@@ -563,11 +571,11 @@ function play() {
     hide('start');
     reset();
     playing = true;
-    socket.emit('start', true);
+
 }
 
 function lose() {
-    show('start');
+    show('looseinfo');
     setVisualScore();
     playing = false;
     socket.emit('loose', true);
@@ -937,5 +945,6 @@ socket.on('op_fishtris', function(id) {
 //-------------------------------------------------------------------------
 // FINALLY, lets run the game
 //-------------------------------------------------------------------------
+hideFull('looseinfo');
 hide('tetris');
 run();
