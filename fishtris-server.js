@@ -8,6 +8,11 @@ var app = require('http').createServer(handler),
 
 app.listen(8080);
 
+function isInteger(data) {
+    return (typeof data === 'number') && Math.floor(data) === data;
+}
+// FIXME create one fishtrisAction Module
+var fishtrisActions = ['Ringel', 'Wonne', 'Riegel', 'Schneck', 'Gnubaby', 'Tonne', 'Blubber', 'BigFISH', 'Bohrer', 'OberGNU'];
 var seed = Math.round(Math.random(0, 999999));
 
 function handler(req, res) {
@@ -72,27 +77,39 @@ io.sockets.on('connection', function(socket) {
     }
     player = player + 1;
     socket.on('score', function(data) {
-        socket.get('myroom', function(err, room) {
-            console.log('score ', data, room);
-            socket.broadcast.to(room).emit('op_score', data);
-        });
+        if (isInteger(data)) {
+            socket.get('myroom', function(err, room) {
+                console.log('score ', data, room);
+                socket.broadcast.to(room).emit('op_score', data);
+            });
+        } else {
+            console.log('Scrore with no integer');
+        }
 
     });
     socket.on('rows', function(data) {
-        socket.get('myroom', function(err, room) {
-            console.log('rows ', data, room);
-            socket.broadcast.to(room).emit('op_rows', data);
-        });
-
+        if (isInteger(data)) {
+            socket.get('myroom', function(err, room) {
+                console.log('rows ', data, room);
+                socket.broadcast.to(room).emit('op_rows', data);
+            });
+        } else {
+            console.log('rows with no integer');
+        }
     });
     socket.on('gnus', function(data) {
-        socket.get('myroom', function(err, room) {
-            console.log('gnus ', data, room);
-            socket.broadcast.to(room).emit('op_gnus', data);
-        });
+        if (isInteger(data)) {
+            socket.get('myroom', function(err, room) {
+                console.log('gnus ', data, room);
+                socket.broadcast.to(room).emit('op_gnus', data);
+            });
+        } else {
+            console.log('gnus with no integer');
+        }
 
     });
     socket.on('down', function(data) {
+        // FIXME check if data is valid
         socket.get('myroom', function(err, room) {
             console.log('down ', room);
             socket.broadcast.to(room).emit('op_down', data);
@@ -100,6 +117,7 @@ io.sockets.on('connection', function(socket) {
 
     });
     socket.on('cur', function(data) {
+        // FIXME check if data is valid
         socket.get('myroom', function(err, room) {
             console.log('cur ', room);
             socket.broadcast.to(room).emit('op_cur', data);
@@ -107,24 +125,34 @@ io.sockets.on('connection', function(socket) {
 
     });
     socket.on('fishtris', function(data) {
-        socket.get('myroom', function(err, room) {
-            console.log('fishtris ', room);
-            socket.broadcast.to(room).emit('op_fishtris', data);
-        });
+        if (fishtrisActions.indexOf(data) != -1) {
+            console.log('ERROR: Illegal fishtrisAction');
+        } else {
+            socket.get('myroom', function(err, room) {
+                console.log('fishtris ', room);
+                socket.broadcast.to(room).emit('op_fishtris', data);
+            });
+        }
 
     });
     socket.on('start', function(data) {
+        if (data === 1) {
 
-        socket.get('myroom', function(err, room) {
-            console.log('start', room);
-            io.sockets. in (room).emit('start', data);
-        });
+            socket.get('myroom', function(err, room) {
+                console.log('start', room);
+                io.sockets. in (room).emit('start', data);
+            });
+        } else {
+            console.log('illegal data on start action');
+        }
 
     });
     socket.on('next', function(data) {
+        // FIXME check if data is valid
         socket.get('myroom', function(err, room) {
             socket.broadcast.to(room).emit('op_next', data);
         });
 
     });
+    // FIXME Handle 'loose'
 });

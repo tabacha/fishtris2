@@ -917,8 +917,10 @@ socket.on('op_cur', function(data) {
 });
 
 socket.on('start', function(data) {
-    if (!playing) {
-        play();
+    if (data === 1) {
+        if (!playing) {
+            play();
+        }
     }
 });
 socket.on('op_next', function(next) {
