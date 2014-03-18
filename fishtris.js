@@ -803,7 +803,11 @@ function draw() {
     ctx.lineWidth = 1;
     ctx.translate(0.5, 0.5); // for crisp 1px black lines
     drawCourt(my_blocks, ctx, current);
-    drawNext();
+    if (invalid.next) {
+        socket.emit('next', next.type.id);
+        drawNext(uctx, next.type.id);
+        invalid.next = false;
+    }
     drawScore();
     drawRows();
     drawGnus();
@@ -830,20 +834,16 @@ function drawCourt(blocks, mctx, mcurrent) {
     }
 }
 
-function drawNext() {
-    if (invalid.next) {
-        console.log('emit next', next.type.id);
-        socket.emit('next', next.type.id);
-        var padding = (nu - next.type.size) / 2; // half-arsed attempt at centering next piece display
-        uctx.save();
-        uctx.translate(0.5, 0.5);
-        uctx.clearRect(0, 0, nu * dx, nu * dy);
-        drawPiece(uctx, next.type, padding, padding, DIR.UP);
-        uctx.strokeStyle = 'black';
-        uctx.strokeRect(0, 0, nu * dx - 1, nu * dy - 1);
-        uctx.restore();
-        invalid.next = false;
-    }
+function drawNext(nctx, id) {
+    var padding = (nu - next.type.size) / 2; // half-arsed attempt at centering next piece display
+    var type = stone[id];
+    nctx.save();
+    nctx.translate(0.5, 0.5);
+    nctx.clearRect(0, 0, nu * dx, nu * dy);
+    drawPiece(nctx, type, padding, padding, DIR.UP);
+    nctx.strokeStyle = 'black';
+    nctx.strokeRect(0, 0, nu * dx - 1, nu * dy - 1);
+    nctx.restore();
 }
 
 function drawScore() {
@@ -978,16 +978,8 @@ socket.on('op_next', function(id) {
         console.log('wrong op_next data');
         return;
     }
-    var type = stone[id];
-    console.log('op_next' + type.id);
-    var padding = (nu - type.size) / 2; // half-arsed attempt at centering next piece display
-    opuctx.save();
-    opuctx.translate(0.5, 0.5);
-    opuctx.clearRect(0, 0, nu * dx, nu * dy);
-    drawPiece(opuctx, type, padding, padding, DIR.UP);
-    opuctx.strokeStyle = 'black';
-    opuctx.strokeRect(0, 0, nu * dx - 1, nu * dy - 1);
-    opuctx.restore();
+    console.log('op_next' + id);
+    drawNext(opuctx, id);
 });
 
 socket.on('op_fishtris', function(id) {
