@@ -378,28 +378,52 @@ var fishtrisActions = [{
     }, {
         id: 'Bohrer',
         gnu: 26,
-        action: function() {
-            var x, y;
-            for (y = 0; y < ny; ++y) {
-                for (x = 0; x < nx; ++x) {
-                    if (op_blocks.get(x, y) !== null) {
-                        var tmp = (x + y) % 3;
-                        if (tmp == 1) {
-                            op_blocks.set(x, y, null);
-                        }
-                    }
-                }
-            }
-
-        },
+        action: function() {},
         op_action: function() {
+            console.log('bohr1');
             var x, y;
             for (y = 0; y < ny; ++y) {
                 for (x = 0; x < nx; ++x) {
                     if (my_blocks.get(x, y) !== null) {
-                        var tmp = (x + y) % 3;
-                        if (tmp == 1) {
-                            my_blocks.set(x, y, null);
+                        var count = 0;
+                        if (x === 0) {
+                            count++;
+                        } else {
+                            if (my_blocks.get(x - 1, y) !== null) {
+                                count++;
+                            }
+                        }
+                        if (x === nx) {
+                            count++;
+                        } else {
+                            if (my_blocks.get(x + 1, y) !== null) {
+                                count++;
+                            }
+                        }
+                        if (y === 0) {
+                            count++;
+                        } else {
+                            if (my_blocks.get(x, y - 1) !== null) {
+                                count++;
+                            }
+                        }
+                        if (y === ny) {
+                            count++;
+                        } else {
+                            if (my_blocks.get(x, y + 1) !== null) {
+                                count++;
+                            }
+                        }
+
+                        if (count > 2) {
+                            console.log('bohr2');
+                            if (Math.random() > 0.5) {
+                                my_blocks.set(x, y, null);
+                                socket.emit('bohrer', {
+                                    x: x,
+                                    y: y
+                                });
+                            }
                         }
                     }
                 }
@@ -416,6 +440,7 @@ var fishtrisActions = [{
     },
 
 ];
+
 
 function setGnuStatus() {
     fishtrisActions.forEach(function(action) {
@@ -949,11 +974,16 @@ socket.on('op_down', function(data) {
         console.log('wrong op_down data');
     }
 });
-
+socket.on('op_bohrer', function(data) {
+    if (isBetween(0, nx, data.x) &&
+        isBetween(0, ny, data.y)) {
+        op_blocks.set(data.x, data.y, null);
+    }
+});
 socket.on('op_cur', function(data) {
     if (isStoneId(data.id) &&
         isBetween(-2, nx + 1, data.x) &&
-        isBetween(0, ny - 1, data.y) &&
+        isBetween(0, ny + 1, data.y) &&
         isBetween(DIR.MIN, DIR.MAX, data.dir)) {
 
         var opcurrent = {
