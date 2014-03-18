@@ -4,12 +4,31 @@
 var app = require('http').createServer(handler),
     io = require('socket.io').listen(app),
     player = 0,
+    stoneids = ['i', 'j', 'l', 'o', 's', 't', 'z', 'f'],
+    DIR = {
+        MIN: 0,
+        MAX: 3
+    },
+    nx = 8,
+    ny = 20,
     fs = require('fs');
 
 app.listen(8080);
 
 function isInteger(data) {
     return (typeof data === 'number') && Math.floor(data) === data;
+}
+
+function isStoneId(data) {
+    return (stoneids.indexOf(data) != -1);
+}
+
+function isBetween(min, max, data) {
+    if (isInteger(data)) {
+        return ((data >= min) && (data <= max));
+    } //  else 
+    return false;
+
 }
 // FIXME create one fishtrisAction Module
 var fishtrisActions = ['Ringel', 'Wonne', 'Riegel', 'Schneck', 'Gnubaby', 'Tonne', 'Blubber', 'BigFISH', 'Bohrer', 'OberGNU'];
@@ -109,12 +128,18 @@ io.sockets.on('connection', function(socket) {
 
     });
     socket.on('down', function(data) {
-        // FIXME check if data is valid
-        socket.get('myroom', function(err, room) {
-            console.log('down ', room);
-            socket.broadcast.to(room).emit('op_down', data);
-        });
+        if (isStoneId(data.id) &&
+            isBetween(0, nx - 1, data.x) &&
+            isBetween(0, ny - 1, data.y) &&
+            isBetween(DIR.MIN, DIR.MAX, data.dir)) {
 
+            socket.get('myroom', function(err, room) {
+                console.log('down ', room);
+                socket.broadcast.to(room).emit('op_down', data);
+            });
+        } else {
+            console.log('illegal data on down');
+        }
     });
     socket.on('cur', function(data) {
         // FIXME check if data is valid

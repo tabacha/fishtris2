@@ -134,6 +134,13 @@ Block.prototype.isInValid = function() {
     return this.court;
 };
 
+Block.prototype.dropPiece = function(type, x, y, dir) {
+    var self = this;
+    eachblock(type, x, y, dir, function(x, y) {
+        self.set(x, y, type.color);
+    });
+};
+
 //-------------------------------------------------------------------------
 // game constants
 //-------------------------------------------------------------------------
@@ -739,12 +746,12 @@ function drop() {
     if (!move(DIR.DOWN)) {
         addScore(10);
         socket.emit('down', {
-            type: current.type,
+            id: current.type.id,
             x: current.x,
             y: current.y,
             dir: current.dir
         });
-        dropPiece();
+        my_blocks.dropPiece(stone[current.type.id], current.x, current.y, current.dir);
         var n = my_blocks.removeLines();
         if (n > 0) {
             addRows(n);
@@ -763,13 +770,6 @@ function drop() {
         }
     }
 }
-
-function dropPiece() {
-    eachblock(current.type, current.x, current.y, current.dir, function(x, y) {
-        my_blocks.set(x, y, current.type.color);
-    });
-}
-
 
 //-------------------------------------------------------------------------
 // RENDERING
@@ -901,10 +901,7 @@ socket.on('op_gnus', function(data) {
 });
 
 socket.on('op_down', function(data) {
-    eachblock(data.type, data.x, data.y, data.dir, function(x, y) {
-        console.log('setBlock(', x, y, data.type.id);
-        op_blocks.set(x, y, data.type.color);
-    });
+    op_blocks.dropPiece(stone[data.id], data.x, data.y, data.dir);
     op_blocks.removeLines();
     op_blocks.invalidate();
     drawCourt(op_blocks, opctx, opcurrent);
