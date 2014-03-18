@@ -163,7 +163,7 @@ io.sockets.on('connection', function(socket) {
         }
     });
     socket.on('fishtris', function(data) {
-        if (fishtrisActions.indexOf(data) != -1) {
+        if (fishtrisActions.indexOf(data) == -1) {
             console.log('ERROR: Illegal fishtrisAction');
         } else {
             socket.get('myroom', function(err, room) {
@@ -195,5 +195,14 @@ io.sockets.on('connection', function(socket) {
         }
 
     });
+    socket.on('bohrer', function(data) {
+        if (isBetween(0, nx, data.x) &&
+            isBetween(0, ny, data.y)) {
+            socket.get('myroom', function(err, room) {
+                socket.broadcast.to(room).emit('op_bohrer', data);
+            });
+        }
+    });
+
     // FIXME Handle 'loose'
 });
