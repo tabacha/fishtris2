@@ -129,7 +129,7 @@ io.sockets.on('connection', function(socket) {
     });
     socket.on('down', function(data) {
         if (isStoneId(data.id) &&
-            isBetween(0, nx - 1, data.x) &&
+            isBetween(-2, nx + 1, data.x) &&
             isBetween(0, ny - 1, data.y) &&
             isBetween(DIR.MIN, DIR.MAX, data.dir)) {
 
@@ -143,7 +143,7 @@ io.sockets.on('connection', function(socket) {
     });
     socket.on('cur', function(data) {
         if (isStoneId(data.id) &&
-            isBetween(0, nx - 1, data.x) &&
+            isBetween(-2, nx + 1, data.x) &&
             isBetween(0, ny - 1, data.y) &&
             isBetween(DIR.MIN, DIR.MAX, data.dir)) {
             socket.get('myroom', function(err, room) {

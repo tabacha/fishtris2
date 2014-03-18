@@ -748,7 +748,6 @@ function rotate(dir) {
 
 function drop() {
     if (!move(DIR.DOWN)) {
-        addScore(10);
         socket.emit('down', {
             id: current.type.id,
             x: current.x,
@@ -759,9 +758,13 @@ function drop() {
         var n = my_blocks.removeLines();
         if (n > 0) {
             addRows(n);
-            addGnus(n);
-            addScore(100 * Math.pow(2, n - 1)); // 1: 100, 2: 200, 3: 400, 4: 800
+            if (n > 1) {
+                addGnus(n + ((n - 1) * 3));
+            } else {
+                addGnus(n);
+            }
         }
+        addScore(1);
         if (fishtris_pieces.length === 0) {
             setCurrentPiece(next);
             setNextPiece(randomPiece());
@@ -928,7 +931,7 @@ socket.on('op_gnus', function(data) {
 
 socket.on('op_down', function(data) {
     if (isStoneId(data.id) &&
-        isBetween(0, nx - 1, data.x) &&
+        isBetween(-2, nx + 1, data.x) &&
         isBetween(0, ny - 1, data.y) &&
         isBetween(DIR.MIN, DIR.MAX, data.dir)) {
 
@@ -949,7 +952,7 @@ socket.on('op_down', function(data) {
 
 socket.on('op_cur', function(data) {
     if (isStoneId(data.id) &&
-        isBetween(0, nx - 1, data.x) &&
+        isBetween(-2, nx + 1, data.x) &&
         isBetween(0, ny - 1, data.y) &&
         isBetween(DIR.MIN, DIR.MAX, data.dir)) {
 
