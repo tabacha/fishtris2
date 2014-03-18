@@ -828,12 +828,12 @@ function drawCourt(blocks, mctx, mcurrent) {
 
 function drawNext() {
     if (invalid.next) {
-        socket.emit('next', next);
+        socket.emit('next', next.type.id);
         var padding = (nu - next.type.size) / 2; // half-arsed attempt at centering next piece display
         uctx.save();
         uctx.translate(0.5, 0.5);
         uctx.clearRect(0, 0, nu * dx, nu * dy);
-        drawPiece(uctx, next.type, padding, padding, next.dir);
+        drawPiece(uctx, next.type, padding, padding, DIR.UP);
         uctx.strokeStyle = 'black';
         uctx.strokeRect(0, 0, nu * dx - 1, nu * dy - 1);
         uctx.restore();
@@ -920,13 +920,14 @@ socket.on('start', function(data) {
         }
     }
 });
-socket.on('op_next', function(next) {
-    console.log('op_next' + next.type.id);
-    var padding = (nu - next.type.size) / 2; // half-arsed attempt at centering next piece display
+socket.on('op_next', function(id) {
+    var type = stone[id];
+    console.log('op_next' + type.id);
+    var padding = (nu - type.size) / 2; // half-arsed attempt at centering next piece display
     opuctx.save();
     opuctx.translate(0.5, 0.5);
     opuctx.clearRect(0, 0, nu * dx, nu * dy);
-    drawPiece(opuctx, next.type, padding, padding, next.dir);
+    drawPiece(opuctx, type, padding, padding, DIR.UP);
     opuctx.strokeStyle = 'black';
     opuctx.strokeRect(0, 0, nu * dx - 1, nu * dy - 1);
     opuctx.restore();

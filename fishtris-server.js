@@ -173,10 +173,13 @@ io.sockets.on('connection', function(socket) {
 
     });
     socket.on('next', function(data) {
-        // FIXME check if data is valid
-        socket.get('myroom', function(err, room) {
-            socket.broadcast.to(room).emit('op_next', data);
-        });
+        if (isStoneId(data.id)) {
+            socket.get('myroom', function(err, room) {
+                socket.broadcast.to(room).emit('op_next', data);
+            });
+        } else {
+            console.log('illegal data on next action');
+        }
 
     });
     // FIXME Handle 'loose'
