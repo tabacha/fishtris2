@@ -142,12 +142,17 @@ io.sockets.on('connection', function(socket) {
         }
     });
     socket.on('cur', function(data) {
-        // FIXME check if data is valid
-        socket.get('myroom', function(err, room) {
-            console.log('cur ', room);
-            socket.broadcast.to(room).emit('op_cur', data);
-        });
-
+        if (isStoneId(data.id) &&
+            isBetween(0, nx - 1, data.x) &&
+            isBetween(0, ny - 1, data.y) &&
+            isBetween(DIR.MIN, DIR.MAX, data.dir)) {
+            socket.get('myroom', function(err, room) {
+                console.log('cur ', room);
+                socket.broadcast.to(room).emit('op_cur', data);
+            });
+        } else {
+            console.log('cur illegal data');
+        }
     });
     socket.on('fishtris', function(data) {
         if (fishtrisActions.indexOf(data) != -1) {
@@ -173,7 +178,7 @@ io.sockets.on('connection', function(socket) {
 
     });
     socket.on('next', function(data) {
-        if (isStoneId(data.id)) {
+        if (isStoneId(data)) {
             socket.get('myroom', function(err, room) {
                 socket.broadcast.to(room).emit('op_next', data);
             });

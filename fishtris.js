@@ -204,14 +204,13 @@ var dx, dy, // pixel size of a single tetris block
     playing, // true|false - game is in progress
     dt, // time since starting this game
     current, // the current piece
-    opcurrent,
     next, // the next piece
     score, // the current score
     vscore, // the currently displayed score (it catches up to score in small chunks - like a spinning slot machine)
     rows, // number of completed rows in the current game
     gnus, // number of gnus
-    step; // how long before current piece drops by 1 row
-
+    step, // how long before current piece drops by 1 row
+    stoneids = ['i', 'j', 'l', 'o', 's', 't', 'z', 'f'];
 
 my_blocks = new Block();
 
@@ -700,7 +699,12 @@ function handle(action) {
 }
 
 function move(dir) {
-    socket.emit('cur', current);
+    socket.emit('cur', {
+        id: current.type.id,
+        x: current.x,
+        y: current.y,
+        dir: current.dir
+    });
     var x = current.x,
         y = current.y;
     switch (dir) {
@@ -828,6 +832,7 @@ function drawCourt(blocks, mctx, mcurrent) {
 
 function drawNext() {
     if (invalid.next) {
+        console.log('emit next', next.type.id);
         socket.emit('next', next.type.id);
         var padding = (nu - next.type.size) / 2; // half-arsed attempt at centering next piece display
         uctx.save();
@@ -878,39 +883,87 @@ function drawBlock(ctx, x, y, color) {
 //-------------------------------------------------------------------------
 // Socket Actions
 //-------------------------------------------------------------------------
+function isInteger(data) {
+    return (typeof data === 'number') && Math.floor(data) === data;
+}
 
+function isStoneId(data) {
+    return (stoneids.indexOf(data) != -1);
+}
+
+function isBetween(min, max, data) {
+    if (isInteger(data)) {
+        return ((data >= min) && (data <= max));
+    } //  else 
+    return false;
+}
 
 socket.on('game_ready', function(seed) {
-    console.log('game_ready', seed);
-    mt = new MersenneTwister(seed);
-    pieces = [];
-    setNextPiece();
-    hide('startinfo');
-    show('tetris');
+    if (isInteger(seed)) {
+        console.log('game_ready', seed);
+        mt = new MersenneTwister(seed);
+        pieces = [];
+        setNextPiece();
+        hide('startinfo');
+        show('tetris');
+    }
 
 });
 
 socket.on('op_score', function(data) {
-    html('scoreop', ('00000' + Math.floor(data)).slice(-5));
+    if (isInteger(data)) {
+        html('scoreop', ('00000' + Math.floor(data)).slice(-5));
+    }
 });
 socket.on('op_rows', function(data) {
-    html('rowsop', data);
+    if (isInteger(data)) {
+        html('rowsop', data);
+    }
 });
 socket.on('op_gnus', function(data) {
-    html('gnusop', data);
+    if (isInteger(data)) {
+        html('gnusop', data);
+    }
 });
 
 socket.on('op_down', function(data) {
-    op_blocks.dropPiece(stone[data.id], data.x, data.y, data.dir);
-    op_blocks.removeLines();
-    op_blocks.invalidate();
-    drawCourt(op_blocks, opctx, opcurrent);
+    if (isStoneId(data.id) &&
+        isBetween(0, nx - 1, data.x) &&
+        isBetween(0, ny - 1, data.y) &&
+        isBetween(DIR.MIN, DIR.MAX, data.dir)) {
+
+        var opcurrent = {
+            x: data.x,
+            y: data.y,
+            dir: data.dir,
+            type: stone[data.id],
+        };
+        op_blocks.dropPiece(stone[data.id], data.x, data.y, data.dir);
+        op_blocks.removeLines();
+        op_blocks.invalidate();
+        drawCourt(op_blocks, opctx, opcurrent);
+    } else {
+        console.log('wrong op_down data');
+    }
 });
 
 socket.on('op_cur', function(data) {
-    opcurrent = data;
-    op_blocks.invalidate();
-    drawCourt(op_blocks, opctx, opcurrent);
+    if (isStoneId(data.id) &&
+        isBetween(0, nx - 1, data.x) &&
+        isBetween(0, ny - 1, data.y) &&
+        isBetween(DIR.MIN, DIR.MAX, data.dir)) {
+
+        var opcurrent = {
+            x: data.x,
+            y: data.y,
+            dir: data.dir,
+            type: stone[data.id],
+        };
+        op_blocks.invalidate();
+        drawCourt(op_blocks, opctx, opcurrent);
+    } else {
+        console.log('wrong op_cur data');
+    }
 });
 
 socket.on('start', function(data) {
@@ -921,6 +974,10 @@ socket.on('start', function(data) {
     }
 });
 socket.on('op_next', function(id) {
+    if (!isStoneId(id)) {
+        console.log('wrong op_next data');
+        return;
+    }
     var type = stone[id];
     console.log('op_next' + type.id);
     var padding = (nu - type.size) / 2; // half-arsed attempt at centering next piece display
@@ -936,7 +993,7 @@ socket.on('op_next', function(id) {
 socket.on('op_fishtris', function(id) {
     console.log('op_fishtris ' + id);
     fishtrisActions.forEach(function(action) {
-        if (action.id == id) {
+        if (action.id === id) {
             action.op_action();
         }
     });
