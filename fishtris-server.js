@@ -66,19 +66,27 @@ function handler(req, res) {
     if (filename.search(/\.EXE$/) > -1) {
         contenttype = 'application/octet-stream';
     }
+    var file = __dirname + '/' + filename;
+    fs.exists(file, function(exists) {
+        if (exists) {
 
-    fs.readFile(__dirname + '/' + filename,
-        function(err, data) {
-            if (err) {
-                res.writeHead(500);
-                return res.end('Error loading ' + filename);
-            }
+            fs.readFile(file,
+                function(err, data) {
+                    if (err) {
+                        res.writeHead(500);
+                        return res.end('Error loading ' + filename);
+                    }
 
-            res.writeHead(200, {
-                'Content-Type': contenttype
-            });
-            res.end(data);
-        });
+                    res.writeHead(200, {
+                        'Content-Type': contenttype
+                    });
+                    res.end(data);
+                });
+        } else {
+            res.writeHead(404);
+            return res.end('Error loading ' + filename);
+        }
+    });
 }
 
 io.sockets.on('connection', function(socket) {
