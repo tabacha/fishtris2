@@ -32,10 +32,10 @@ function isBetween(min, max, data) {
 }
 // FIXME create one fishtrisAction Module
 var fishtrisActions = ['Ringel', 'Wonne', 'Riegel', 'Schneck', 'Gnubaby', 'Tonne', 'Blubber', 'BigFISH', 'Bohrer', 'OberGNU'];
-var seed = Math.round(Math.random(0, 999999));
+var seed = Math.round(Math.random(0, 999999)),
+    cache = {};
 
 function handler(req, res) {
-    console.log(req.url);
     var filename = 'error.html';
     var contenttype = 'text/html';
     if (req.url == '/') {
@@ -67,6 +67,13 @@ function handler(req, res) {
         contenttype = 'application/octet-stream';
     }
     var file = __dirname + '/' + filename;
+    if (cache[file]) {
+        res.writeHead(200, {
+            'Content-Type': contenttype
+        });
+        console.log('cache ' + file);
+        return res.end(cache[file]);
+    }
     fs.exists(file, function(exists) {
         if (exists) {
 
@@ -80,7 +87,9 @@ function handler(req, res) {
                     res.writeHead(200, {
                         'Content-Type': contenttype
                     });
-                    res.end(data);
+                    console.log('load ' + file);
+                    cache[file] = data;
+                    return res.end(data);
                 });
         } else {
             res.writeHead(404);
